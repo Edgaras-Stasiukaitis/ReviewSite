@@ -14,5 +14,7 @@ namespace ReviewAPI.Models
         public int Rating { get; set; }
         [JsonIgnore]
         public virtual User User { get; set; }
+        [JsonIgnore]
+        public virtual Item Item { get; set; }
     }
 }

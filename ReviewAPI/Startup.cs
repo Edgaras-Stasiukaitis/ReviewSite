@@ -29,10 +29,18 @@ namespace ReviewAPI
 
         public IConfiguration Configuration { get; }
 
+        private static async Task CreateRoles(IServiceProvider serviceProvider)
+        {
+            var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            foreach (var role in new[] { "Admin", "Member" })
+                if (!await RoleManager.RoleExistsAsync(role))
+                    await RoleManager.CreateAsync(new IdentityRole(role));
+        }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.Configure<ApplicationSettings>(Configuration.GetSection("ApplicationSettings"));
+            services.Configure<ApplicationSettings>(Configuration.GetSection("ApplicationSettings"));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
@@ -75,7 +83,7 @@ namespace ReviewAPI
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -94,6 +102,8 @@ namespace ReviewAPI
             {
                 endpoints.MapControllers();
             });
+
+            CreateRoles(serviceProvider).Wait();
         }
     }
 }

@@ -10,32 +10,32 @@ namespace ReviewAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CategoryController : ControllerBase
+    public class CategoriesController : ControllerBase
     {
         private readonly DatabaseContext _context;
 
-        public CategoryController(DatabaseContext context)
+        public CategoriesController(DatabaseContext context)
         {
             _context = context;
         }
 
-        [HttpGet, Route("Categories")]
+        [HttpGet]
         public async Task<object> GetCategories() => await _context.Categories.ToListAsync();
 
-        [HttpGet, Route("Category/{id}")]
+        [HttpGet("{id}")]
         public async Task<object> GetCategory(int id)
         {
             var category = await _context.Categories.FindAsync(id);
-            if (category == null) return BadRequest($"Could not retrieve category. Category  by id {id} not found.");
-            return new 
-            { 
+            if (category == null) return NotFound($"Could not retrieve category. Category by id {id} not found.");
+            return new
+            {
                 category.Id,
                 category.Name,
                 category.ImageURL
             };
         }
 
-        [HttpPost, Route("Category")]
+        [HttpPost]
         public async Task<IActionResult> AddCategory(JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<Item>(data.GetRawText());
@@ -49,12 +49,12 @@ namespace ReviewAPI.Controllers
             return Ok(category);
         }
 
-        [HttpPut, Route("Category/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCategory(int id, JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<Item>(data.GetRawText());
             var category = await _context.Categories.FindAsync(id);
-            if (category == null) return BadRequest($"Could not update category. Category by id {id} not found.");
+            if (category == null) return NotFound($"Could not update category. Category by id {id} not found.");
             category.Name = model.Name;
             category.ImageURL = model.ImageURL;
             _context.Categories.Update(category);
@@ -62,13 +62,13 @@ namespace ReviewAPI.Controllers
             return Ok(category);
         }
 
-        [HttpDelete, Route("Category/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteItem(int id)
         {
             var category = await _context.Categories.FindAsync(id);
-            if (category == null) return BadRequest($"Could not delete Category. Category by id {id} not found.");
+            if (category == null) return NotFound($"Could not delete Category. Category by id {id} not found.");
             var items = await _context.Items.Where(x => x.Category.Id == id).ToListAsync();
-            _context.Items.RemoveRange(items);
+            if(items.Count != 0) _context.Items.RemoveRange(items);
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
             return Ok(category);
