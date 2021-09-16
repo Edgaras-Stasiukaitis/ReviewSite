@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ReviewAPI.Models;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -12,7 +9,7 @@ using System.Threading.Tasks;
 namespace ReviewAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class ItemController : ControllerBase
     {
         private readonly DatabaseContext _context;
@@ -22,40 +19,42 @@ namespace ReviewAPI.Controllers
             _context = context;
         }
 
-        [HttpGet, Route("GetItems")]
-        public async Task<object> GetItems() => await _context.Items.ToListAsync();
+        [HttpGet, Route("GetItems/{categoryId}")]
+        public async Task<object> GetItems(int categoryId) => await _context.Items.Where(x => x.Category.Id == categoryId).ToListAsync();
 
-        [HttpGet, Route("GetItem/{id}")]
-        public async Task<object> GetItem(int id)
+        [HttpGet, Route("GetItem/{itemId}")]
+        public async Task<object> GetItem(int itemId)
         {
-            var item = await _context.Items.FindAsync(id);
-            if (item == null) return BadRequest($"Could not retrieve item. Item  by id {id} not found.");
+            var item = await _context.Items.FindAsync(itemId);
+            if (item == null) return BadRequest($"Could not retrieve item. Item  by id {itemId} not found.");
             return item;
         }
 
-        [HttpPost, Route("AddItem")]
-        public async Task<IActionResult> AddItem(JsonElement data)
+        [HttpPost, Route("AddItem/{categoryId}")]
+        public async Task<IActionResult> AddItem(int categoryId, JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<Item>(data.GetRawText());
+            var category = await _context.Categories.FindAsync(categoryId);
+            if (category == null) return BadRequest($"Could not add item. Category  by id {categoryId} not found.");
             var item = new Item
             {
                 Name = model.Name,
                 Description = model.Description,
                 Rating = model.Rating,
                 ImageURL = model.ImageURL,
-                Category = _context.Categories.First()
+                Category = category
             };
             await _context.Items.AddAsync(item);
             await _context.SaveChangesAsync();
             return Ok(item);
         }
 
-        [HttpPut, Route("UpdateItem/{id}")]
-        public async Task<IActionResult> UpdateItem(int id, JsonElement data)
+        [HttpPut, Route("UpdateItem/{itemId}")]
+        public async Task<IActionResult> UpdateItem(int itemId, JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<Item>(data.GetRawText());
-            var item = await _context.Items.FindAsync(id);
-            if (item == null) return BadRequest($"Could not update item. Item by id {id} not found.");
+            var item = await _context.Items.FindAsync(itemId);
+            if (item == null) return BadRequest($"Could not update item. Item by id {itemId} not found.");
             item.Name = model.Name;
             item.Description = model.Description;
             item.Rating = model.Rating;
