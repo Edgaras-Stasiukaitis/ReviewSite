@@ -10,9 +10,17 @@ namespace ReviewAPI.Models
     {
         [Required, Column(TypeName = "nvarchar(150)")]
         public string FirstName { get; set; }
+
         [Required, Column(TypeName = "nvarchar(150)")]
         public string LastName { get; set; }
+
+        [Required, Column(TypeName = "nvarchar(150)")]
+        public string Role { get; set; }
+
         [JsonIgnore]
         public virtual ICollection<Review> Reviews { get; set; }
+
+        [JsonIgnore]
+        public virtual ICollection<Reaction> Reactions { get; set; }
     }
 }

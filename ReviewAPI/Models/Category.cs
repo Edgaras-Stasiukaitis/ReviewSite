@@ -9,10 +9,13 @@ namespace ReviewAPI.Models
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
         [Required, Column(TypeName = "nvarchar(128)")]
         public string Name { get; set; }
+
         [Column(TypeName = "text")]
         public string ImageURL { get; set; }
+
         [JsonIgnore]
         public virtual ICollection<Item> Items { get; set; }
     }

@@ -10,8 +10,8 @@ using ReviewAPI.Models;
 namespace ReviewAPI.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20210915085835_DbContext")]
-    partial class DbContext
+    [Migration("20210920150407_Reviews")]
+    partial class Reviews
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -231,7 +231,6 @@ namespace ReviewAPI.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("ImageURL")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
@@ -254,11 +253,9 @@ namespace ReviewAPI.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("ImageURL")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
@@ -275,6 +272,31 @@ namespace ReviewAPI.Migrations
                     b.ToTable("Items");
                 });
 
+            modelBuilder.Entity("ReviewAPI.Models.Reaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<byte>("ReactionState")
+                        .HasColumnType("tinyint");
+
+                    b.Property<int?>("ReviewId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReviewId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Reactions");
+                });
+
             modelBuilder.Entity("ReviewAPI.Models.Review", b =>
                 {
                     b.Property<int>("Id")
@@ -283,7 +305,6 @@ namespace ReviewAPI.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int?>("ItemId")
@@ -313,6 +334,10 @@ namespace ReviewAPI.Migrations
                         .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(150)");
 
@@ -379,15 +404,32 @@ namespace ReviewAPI.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("ReviewAPI.Models.Reaction", b =>
+                {
+                    b.HasOne("ReviewAPI.Models.Review", "Review")
+                        .WithMany("Reactions")
+                        .HasForeignKey("ReviewId");
+
+                    b.HasOne("ReviewAPI.Models.User", "User")
+                        .WithMany("Reactions")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Review");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ReviewAPI.Models.Review", b =>
                 {
-                    b.HasOne("ReviewAPI.Models.Item", null)
+                    b.HasOne("ReviewAPI.Models.Item", "Item")
                         .WithMany("Reviews")
                         .HasForeignKey("ItemId");
 
                     b.HasOne("ReviewAPI.Models.User", "User")
                         .WithMany("Reviews")
                         .HasForeignKey("UserId");
+
+                    b.Navigation("Item");
 
                     b.Navigation("User");
                 });
@@ -402,8 +444,15 @@ namespace ReviewAPI.Migrations
                     b.Navigation("Reviews");
                 });
 
+            modelBuilder.Entity("ReviewAPI.Models.Review", b =>
+                {
+                    b.Navigation("Reactions");
+                });
+
             modelBuilder.Entity("ReviewAPI.Models.User", b =>
                 {
+                    b.Navigation("Reactions");
+
                     b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618

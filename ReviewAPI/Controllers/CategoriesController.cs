@@ -19,9 +19,11 @@ namespace ReviewAPI.Controllers
             _context = context;
         }
 
+        // GET: api/Categories
         [HttpGet]
         public async Task<object> GetCategories() => await _context.Categories.ToListAsync();
 
+        // GET: api/Categories/1
         [HttpGet("{id}")]
         public async Task<object> GetCategory(int id)
         {
@@ -31,10 +33,12 @@ namespace ReviewAPI.Controllers
             {
                 category.Id,
                 category.Name,
-                category.ImageURL
+                category.ImageURL,
+                category.Items
             };
         }
 
+        // POST: api/Categories
         [HttpPost]
         public async Task<IActionResult> AddCategory(JsonElement data)
         {
@@ -49,6 +53,7 @@ namespace ReviewAPI.Controllers
             return Ok(category);
         }
 
+        // PUT: api/Categories/1
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCategory(int id, JsonElement data)
         {
@@ -62,8 +67,9 @@ namespace ReviewAPI.Controllers
             return Ok(category);
         }
 
+        // DELETE: api/Categories/1
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteItem(int id)
+        public async Task<IActionResult> DeleteCategory(int id)
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null) return NotFound($"Could not delete Category. Category by id {id} not found.");

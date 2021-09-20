@@ -43,7 +43,6 @@ namespace ReviewAPI.Controllers
             {
                 Name = model.Name,
                 Description = model.Description,
-                Rating = model.Rating,
                 ImageURL = model.ImageURL,
                 Category = category
             };
@@ -60,7 +59,6 @@ namespace ReviewAPI.Controllers
             if (item == null) return BadRequest($"Could not update item. Item by id {itemId} not found.");
             item.Name = model.Name;
             item.Description = model.Description;
-            item.Rating = model.Rating;
             item.ImageURL = model.ImageURL;
             _context.Items.Update(item);
             await _context.SaveChangesAsync();
@@ -72,6 +70,8 @@ namespace ReviewAPI.Controllers
         {
             var item = await _context.Items.FindAsync(itemId);
             if (item == null) return BadRequest($"Could not delete item. Item by id {itemId} not found.");
+            var reactions = await _context.Reactions.Where(x => x.Review.Item.Id == itemId).ToListAsync();
+            if (reactions.Count != 0) _context.Reactions.RemoveRange(reactions);
             var reviews = await _context.Reviews.Where(x => x.Item.Id == itemId).ToListAsync();
             if (reviews.Count != 0) _context.Reviews.RemoveRange(reviews);
             _context.Items.Remove(item);

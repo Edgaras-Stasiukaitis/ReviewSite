@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using ReviewAPI.Models;
 using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -38,8 +41,38 @@ namespace ReviewAPI.Controllers
             _context = context;
         }
 
-        [HttpPost]
-        public async Task<object> CreateUser(JsonElement data)
+        [HttpGet]
+        public async Task<object> GetUsers() => await _userManager.Users.Select(x => new
+            {
+                x.Id,
+                x.UserName,
+                x.FirstName,
+                x.LastName,
+                x.Email,
+                x.Reviews,
+                x.Reactions
+            }).ToListAsync();
+
+        [HttpGet("{id}")]
+        public async Task<object> GetUser(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            var userRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+            if (user == null) return NotFound($"Could not retrieve user. User by id {id} not found.");
+            return Ok(new {
+                user.Id, 
+                role = userRole,
+                user.UserName,
+                user.FirstName,
+                user.LastName,
+                user.Email,
+                user.Reviews,
+                user.Reactions
+            });
+        }
+
+        [HttpPost, Route("Register")]
+        public async Task<object> Register(JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<dynamic>(data.GetRawText());
             model.Role = "Admin";
