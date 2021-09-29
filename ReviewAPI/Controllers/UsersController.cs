@@ -45,45 +45,46 @@ namespace ReviewAPI.Controllers
         public async Task<object> GetUsers() => await _userManager.Users.Select(x => new
             {
                 x.Id,
+                x.Role,
                 x.UserName,
                 x.FirstName,
                 x.LastName,
-                x.Email,
-                x.Reviews,
-                x.Reactions
+                x.Email
             }).ToListAsync();
 
         [HttpGet("{id}")]
         public async Task<object> GetUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound(new { message = $"Could not retrieve user. User by id {id} not found." });
             var userRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
-            if (user == null) return NotFound($"Could not retrieve user. User by id {id} not found.");
             return Ok(new {
                 user.Id, 
-                role = userRole,
+                userRole,
                 user.UserName,
                 user.FirstName,
                 user.LastName,
-                user.Email,
-                user.Reviews,
-                user.Reactions
+                user.Email
             });
         }
 
         [HttpPost, Route("Register")]
-        public async Task<object> Register(JsonElement data)
+        public async Task<IActionResult> Register(JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<dynamic>(data.GetRawText());
             model.Role = "Admin";
             var applicationUser = new User()
             {
                 UserName = model.UserName,
+                Role = model.Role,
                 Email = model.Email,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 EmailConfirmed = true,
             };
+            if (model.UserName == null) return BadRequest(new { message = $"Username is required." });
+            if (await _userManager.FindByNameAsync(applicationUser.UserName) != null)
+                return BadRequest(new { message = $"Could not register user. User with Username {applicationUser.UserName} is already registered." });
             try
             {
                 var result = await _userManager.CreateAsync(applicationUser, (string)model.Password);
@@ -93,7 +94,7 @@ namespace ReviewAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest($"Problem with register:\n{ex.Message}");
+                return BadRequest(new { message = ex.Message });
             }
         }
 
@@ -120,27 +121,50 @@ namespace ReviewAPI.Controllers
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var securityToken = tokenHandler.CreateToken(tokenDescriptor);
                 var token = tokenHandler.WriteToken(securityToken);
-                return Ok(new { Token = token, User = user });
+                return Ok(new { 
+                    Token = token, 
+                    User = new
+                    {
+                        user.Id,
+                        role = role.FirstOrDefault(),
+                        user.UserName,
+                        user.FirstName,
+                        user.LastName,
+                        user.Email
+                    }
+                });
             }
             else
                 return BadRequest(new { message = "Username or password is incorrect." });
         }
 
-        [HttpDelete("{id}"), Authorize(Roles = "Admin")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            if (id == null) return NotFound("User not found");
             var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound(new { message = $"Could not delete user. User by id {id} not found" });
             var rolesForUser = await _userManager.GetRolesAsync(user);
             using (var transaction = _context.Database.BeginTransaction())
             {
                 if (rolesForUser.Count() > 0)
                     foreach (var item in rolesForUser.ToList())
                         await _userManager.RemoveFromRoleAsync(user, item);
+                var reviews = _context.Reviews.Where(r => r.User.Id == id);
+                var reactions = _context.Reactions.Where(r => r.User.Id == id);
+                _context.Reactions.RemoveRange(reactions);
+                _context.Reviews.RemoveRange(reviews);
                 await _userManager.DeleteAsync(user);
                 transaction.Commit();
             }
-            return Ok(user);
+            return Ok(new
+            {
+                user.Id,
+                user.Role,
+                user.UserName,
+                user.FirstName,
+                user.LastName,
+                user.Email
+            });
         }
 
         private async Task<User> GetCurrentUser() => await _userManager.FindByIdAsync(User.Claims.First(c => c.Type == "UserID").Value);
