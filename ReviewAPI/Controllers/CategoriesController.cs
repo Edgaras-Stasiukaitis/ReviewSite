@@ -5,6 +5,8 @@ using ReviewAPI.Models;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Linq;
+using AutoMapper;
+using ReviewAPI.ModelDtos;
 
 namespace ReviewAPI.Controllers
 {
@@ -13,10 +15,12 @@ namespace ReviewAPI.Controllers
     public class CategoriesController : ControllerBase
     {
         private readonly DatabaseContext _context;
+        private readonly IMapper _mapper;
 
-        public CategoriesController(DatabaseContext context)
+        public CategoriesController(DatabaseContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Categories
@@ -29,12 +33,7 @@ namespace ReviewAPI.Controllers
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null) return NotFound(new { message = $"Could not retrieve category. Category by id {id} not found." });
-            return Ok(new
-            {
-                category.Id,
-                category.Name,
-                category.ImageURL
-            });
+            return Ok(_mapper.Map<CategoryDto>(category));
         }
 
         // POST: api/Categories
@@ -50,11 +49,7 @@ namespace ReviewAPI.Controllers
             };
             await _context.Categories.AddAsync(category);
             await _context.SaveChangesAsync();
-            return Created($"api/[controller]/{category.Id}", new { 
-                category.Id,
-                category.Name,
-                category.ImageURL
-            });
+            return Created($"api/[controller]/{category.Id}", _mapper.Map<CategoryDto>(category));
         }
 
         // PUT: api/Categories/1
@@ -69,12 +64,7 @@ namespace ReviewAPI.Controllers
             category.ImageURL = model.ImageURL;
             _context.Categories.Update(category);
             await _context.SaveChangesAsync();
-            return Ok(new
-            {
-                category.Id,
-                category.Name,
-                category.ImageURL
-            });
+            return Ok(_mapper.Map<CategoryDto>(category));
         }
 
         // DELETE: api/Categories/1
@@ -91,12 +81,7 @@ namespace ReviewAPI.Controllers
             if (items.Count != 0) _context.Items.RemoveRange(items);
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
-            return Ok(new
-            {
-                category.Id,
-                category.Name,
-                category.ImageURL
-            });
+            return Ok(_mapper.Map<CategoryDto>(category));
         }
     }
 }

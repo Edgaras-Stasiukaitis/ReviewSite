@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using ReviewAPI.ModelDtos;
 using ReviewAPI.Models;
 using System.Linq;
 using System.Text.Json;
@@ -15,11 +17,13 @@ namespace ReviewAPI.Controllers
     {
         private readonly DatabaseContext _context;
         private readonly UserManager<User> _userManager;
+        private readonly IMapper _mapper;
 
-        public ReactionsController(DatabaseContext context, UserManager<User> userManager)
+        public ReactionsController(DatabaseContext context, UserManager<User> userManager, IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
+            _mapper = mapper;
         }
 
         // GET: api/Categories/1/Items/1/Reviews/1/Reactions
@@ -40,7 +44,7 @@ namespace ReviewAPI.Controllers
             if (review == null) return NotFound(new { message = $"Could not retrieve reaction. Review by id {reviewId} not found." });
             var reaction = review.Reactions.FirstOrDefault(x => x.Id == reactionId);
             if (reaction == null) return NotFound(new { message = $"Could not retrieve reaction. Reaction by id {reactionId} not found." });
-            return Ok(new { reaction.Id, reaction.ReactionState });
+            return Ok(_mapper.Map<ReactionDto>(reaction));
         }
 
         // POST: api/Categories/1/Items/1/Reviews/1/Reactions
@@ -63,7 +67,7 @@ namespace ReviewAPI.Controllers
             };
             await _context.Reactions.AddAsync(reaction);
             await _context.SaveChangesAsync();
-            return Created($"api/Categories/{categoryId}/Items/{itemId}/Reviews/{reviewId}/[controller]/{reaction.Id}", reaction);
+            return Created($"api/Categories/{categoryId}/Items/{itemId}/Reviews/{reviewId}/[controller]/{reaction.Id}", _mapper.Map<ReactionDto>(reaction));
         }
 
         // PUT: api/Categories/1/Items/1/Reviews/1/Reactions/1
@@ -82,7 +86,7 @@ namespace ReviewAPI.Controllers
             reaction.ReactionState = model.ReactionState;
             _context.Reactions.Update(reaction);
             await _context.SaveChangesAsync();
-            return Ok(new { reaction.Id, reaction.ReactionState });
+            return Ok(_mapper.Map<ReactionDto>(reaction));
         }
 
         // DELETE: api/Categories/1/Items/1/Reviews/1/Reactions/1
@@ -99,7 +103,7 @@ namespace ReviewAPI.Controllers
             if (reaction == null) return NotFound(new { message = $"Could not delete reaction. Reaction by id {reactionId} not found." });
             _context.Reactions.Remove(reaction);
             await _context.SaveChangesAsync();
-            return Ok(new { reaction.Id, reaction.ReactionState });
+            return Ok(_mapper.Map<ReactionDto>(reaction));
         }
 
         private async Task<User> GetCurrentUser() => await _userManager.FindByIdAsync(User.Claims.First(c => c.Type == "UserID").Value);

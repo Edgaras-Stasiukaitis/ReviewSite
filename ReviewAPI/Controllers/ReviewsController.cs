@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using ReviewAPI.ModelDtos;
 using ReviewAPI.Models;
 using System.Linq;
 using System.Text.Json;
@@ -16,23 +18,20 @@ namespace ReviewAPI.Controllers
     {
         private readonly DatabaseContext _context;
         private readonly UserManager<User> _userManager;
+        private readonly IMapper _mapper;
 
-        public ReviewsController(DatabaseContext context, UserManager<User> userManager)
+        public ReviewsController(DatabaseContext context, UserManager<User> userManager, IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
+            _mapper = mapper;
         }
 
         // GET: api/Categories/1/Items/1/Reviews
         [HttpGet]
         public async Task<object> GetReviews(int categoryId, int itemId) => await _context.Reviews
             .Where(x => x.Item.Category.Id == categoryId && x.Item.Id == itemId)
-            .Select(r => new { 
-                r.Id,
-                r.Description,
-                r.Rating,
-                r.CreationDate
-            }).ToListAsync();
+            .Select(r => _mapper.Map<ReviewDto>(r)).ToListAsync();
 
         // GET: api/Categories/1/Items/1/Reviews/1
         [HttpGet("{reviewId}")]
@@ -44,7 +43,7 @@ namespace ReviewAPI.Controllers
             if (item == null) return NotFound(new { message = $"Could not retrieve review. Item by id {itemId} not found." });
             var review = item.Reviews.FirstOrDefault(x => x.Id == reviewId);
             if (review == null) return NotFound(new { message = $"Could not retrieve review. Review by id {reviewId} not found." });
-            return Ok(new { review.Id, review.Description, review.Rating, review.CreationDate });
+            return Ok(_mapper.Map<ReviewDto>(review));
         }
 
         // POST: api/Categories/1/Items/1/Reviews
@@ -66,7 +65,7 @@ namespace ReviewAPI.Controllers
             };
             await _context.Reviews.AddAsync(review);
             await _context.SaveChangesAsync();
-            return Created($"api/Categories/{categoryId}/Items/{itemId}/[controller]/{review.Id}", new { review.Id, review.Description, review.Rating, review.CreationDate });
+            return Created($"api/Categories/{categoryId}/Items/{itemId}/[controller]/{review.Id}", _mapper.Map<ReviewDto>(review));
         }
 
         // PUT: api/Categories/1/Items/1/Reviews/1
@@ -85,7 +84,7 @@ namespace ReviewAPI.Controllers
             review.Rating = (int)model.Rating;
             _context.Reviews.Update(review);
             await _context.SaveChangesAsync();
-            return Ok(new { review.Id, review.Description, review.Rating, review.CreationDate });
+            return Ok(_mapper.Map<ReviewDto>(review));
         }
 
         // DELETE: api/Categories/1/Items/1/Reviews/1
@@ -102,7 +101,7 @@ namespace ReviewAPI.Controllers
             if (reactions.Count != 0) _context.Reactions.RemoveRange(reactions);
             _context.Reviews.Remove(review);
             await _context.SaveChangesAsync();
-            return Ok(new { review.Id, review.Description, review.Rating, review.CreationDate });
+            return Ok(_mapper.Map<ReviewDto>(review));
         }
 
         private async Task<User> GetCurrentUser() => await _userManager.FindByIdAsync(User.Claims.First(c => c.Type == "UserID").Value);

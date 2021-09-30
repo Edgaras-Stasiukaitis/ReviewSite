@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using ReviewAPI.ModelDtos;
 using ReviewAPI.Models;
 using System.Linq;
 using System.Text.Json;
@@ -13,22 +15,17 @@ namespace ReviewAPI.Controllers
     public class ItemsController : ControllerBase
     {
         private readonly DatabaseContext _context;
+        private readonly IMapper _mapper;
 
-        public ItemsController(DatabaseContext context)
+        public ItemsController(DatabaseContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Categories/1/Items
         [HttpGet]
-        public async Task<object> GetItems(int categoryId) => await _context.Items.Where(o => o.Category.Id == categoryId).Select(x => new 
-        {
-            x.Id,
-            x.Name,
-            x.Description,
-            x.Rating,
-            x.ImageURL
-        }).ToListAsync();
+        public async Task<object> GetItems(int categoryId) => await _context.Items.Where(o => o.Category.Id == categoryId).Select(item => _mapper.Map<ItemDto>(item)).ToListAsync();
 
         // GET: api/Categories/1/Items/1
         [HttpGet("{itemId}")]
@@ -38,7 +35,7 @@ namespace ReviewAPI.Controllers
             if (category == null) return NotFound(new { message = $"Could not retrieve item. Category by id {categoryId} not found." });
             var item = category.Items.FirstOrDefault(x => x.Id == itemId);
             if (item == null) return NotFound(new { message = $"Could not retrieve item. Item by id {itemId} not found." });
-            return Ok(new { item.Id, item.Name, item.Description, item.Rating, item.ImageURL });
+            return Ok(_mapper.Map<ItemDto>(item));
         }
 
         // POST: api/Categories/1/Items
@@ -59,7 +56,7 @@ namespace ReviewAPI.Controllers
             };
             await _context.Items.AddAsync(item);
             await _context.SaveChangesAsync();
-            return Created($"api/Categories/{categoryId}/[controller]/{item.Id}", item);
+            return Created($"api/Categories/{categoryId}/[controller]/{item.Id}", _mapper.Map<ItemDto>(item));
         }
 
         // PUT: api/Categories/1/Items/1
@@ -78,7 +75,7 @@ namespace ReviewAPI.Controllers
             item.ImageURL = model.ImageURL;
             _context.Items.Update(item);
             await _context.SaveChangesAsync();
-            return Ok(new { item.Id, item.Name, item.Description, item.Rating, item.ImageURL });
+            return Ok(_mapper.Map<ItemDto>(item));
         }
 
         // DELETE: api/Categories/1/Items/1
@@ -95,7 +92,7 @@ namespace ReviewAPI.Controllers
             if (reviews.Count != 0) _context.Reviews.RemoveRange(reviews);
             _context.Items.Remove(item);
             await _context.SaveChangesAsync();
-            return Ok(new { item.Id, item.Name, item.Description, item.Rating, item.ImageURL });
+            return Ok(_mapper.Map<ItemDto>(item));
         }
     }
 }

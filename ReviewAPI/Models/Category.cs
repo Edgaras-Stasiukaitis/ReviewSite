@@ -10,7 +10,7 @@ namespace ReviewAPI.Models
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Category name is required."), Column(TypeName = "nvarchar(128)")]
+        [Required, Column(TypeName = "nvarchar(128)")]
         public string Name { get; set; }
 
         [Column(TypeName = "text")]

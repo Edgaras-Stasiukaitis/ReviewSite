@@ -15,6 +15,8 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AutoMapper;
+using ReviewAPI.ModelDtos;
 
 namespace ReviewAPI.Controllers
 {
@@ -32,40 +34,26 @@ namespace ReviewAPI.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly DatabaseContext _context;
         private readonly ApplicationSettings _appSettings;
+        private readonly IMapper _mapper;
 
-        public UsersController(UserManager<User> userManager, SignInManager<User> signInManager, DatabaseContext context, IOptions<ApplicationSettings> appSettings)
+        public UsersController(UserManager<User> userManager, SignInManager<User> signInManager, DatabaseContext context, IOptions<ApplicationSettings> appSettings, IMapper mapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _appSettings = appSettings.Value;
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<object> GetUsers() => await _userManager.Users.Select(x => new
-            {
-                x.Id,
-                x.Role,
-                x.UserName,
-                x.FirstName,
-                x.LastName,
-                x.Email
-            }).ToListAsync();
+        public async Task<object> GetUsers() => await _userManager.Users.Select(user => _mapper.Map<UserDto>(user)).ToListAsync();
 
         [HttpGet("{id}")]
         public async Task<object> GetUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound(new { message = $"Could not retrieve user. User by id {id} not found." });
-            var userRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
-            return Ok(new {
-                user.Id, 
-                userRole,
-                user.UserName,
-                user.FirstName,
-                user.LastName,
-                user.Email
-            });
+            return Ok(_mapper.Map<UserDto>(user));
         }
 
         [HttpPost, Route("Register")]
@@ -82,12 +70,11 @@ namespace ReviewAPI.Controllers
                 LastName = model.LastName,
                 EmailConfirmed = true,
             };
-            if (model.UserName == null) return BadRequest(new { message = $"Username is required." });
-            if (await _userManager.FindByNameAsync(applicationUser.UserName) != null)
-                return BadRequest(new { message = $"Could not register user. User with Username {applicationUser.UserName} is already registered." });
             try
             {
                 var result = await _userManager.CreateAsync(applicationUser, (string)model.Password);
+                if (await _userManager.FindByNameAsync(applicationUser.UserName) != null)
+                    return BadRequest(new { message = $"Could not register user. User with Username {applicationUser.UserName} is already registered." });
                 await _userManager.AddToRoleAsync(applicationUser, (string)model.Role);
                 await _context.SaveChangesAsync();
                 return Ok(result);
@@ -105,7 +92,6 @@ namespace ReviewAPI.Controllers
             var user = await _userManager.FindByNameAsync((string)model.UserName);
             if (user != null && await _userManager.CheckPasswordAsync(user, (string)model.Password))
             {
-                //Get role
                 var role = await _userManager.GetRolesAsync(user);
                 IdentityOptions _options = new();
                 var tokenDescriptor = new SecurityTokenDescriptor
@@ -123,15 +109,7 @@ namespace ReviewAPI.Controllers
                 var token = tokenHandler.WriteToken(securityToken);
                 return Ok(new { 
                     Token = token, 
-                    User = new
-                    {
-                        user.Id,
-                        role = role.FirstOrDefault(),
-                        user.UserName,
-                        user.FirstName,
-                        user.LastName,
-                        user.Email
-                    }
+                    User = _mapper.Map<UserDto>(user)
                 });
             }
             else
@@ -156,15 +134,7 @@ namespace ReviewAPI.Controllers
                 await _userManager.DeleteAsync(user);
                 transaction.Commit();
             }
-            return Ok(new
-            {
-                user.Id,
-                user.Role,
-                user.UserName,
-                user.FirstName,
-                user.LastName,
-                user.Email
-            });
+            return Ok(_mapper.Map<UserDto>(user));
         }
 
         private async Task<User> GetCurrentUser() => await _userManager.FindByIdAsync(User.Claims.First(c => c.Type == "UserID").Value);
