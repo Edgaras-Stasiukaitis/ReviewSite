@@ -20,6 +20,9 @@ namespace ReviewAPI.Models
         [Required, Column(TypeName = "datetime")]
         public DateTime CreationDate { get; set; } = DateTime.Now;
 
+        [Required, Column(TypeName = "datetime")]
+        public DateTime UpdateDate { get; set; } = DateTime.Now;
+
         [JsonIgnore]
         public virtual User User { get; set; }
 

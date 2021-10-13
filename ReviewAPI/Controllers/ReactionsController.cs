@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -48,21 +49,21 @@ namespace ReviewAPI.Controllers
         }
 
         // POST: api/Categories/1/Items/1/Reviews/1/Reactions
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Admin,Member")]
         public async Task<IActionResult> AddReaction(int categoryId, int itemId, int reviewId, JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<Reaction>(data.GetRawText());
+            if (model.ReactionState == 0) return BadRequest(new { message = "Reaction state is required." });
             var category = await _context.Categories.FindAsync(categoryId);
             if (category == null) return NotFound(new { message = $"Could not add reaction. Category by id {categoryId} not found." });
             var item = category.Items.FirstOrDefault(x => x.Id == itemId);
             if (item == null) return NotFound(new { message = $"Could not add reaction. Item by id {itemId} not found." });
             var review = item.Reviews.FirstOrDefault(x => x.Id == reviewId);
             if (review == null) return NotFound(new { message = $"Could not add reaction. Review by id {reviewId} not found." });
-            if (model.ReactionState == 0) return BadRequest(new { message = "Reaction state is required." });
             var reaction = new Reaction
             {
                 ReactionState = model.ReactionState,
-                User = _userManager.Users.FirstOrDefault(), // temporary
+                User = await GetCurrentUser(),
                 Review = review
             };
             await _context.Reactions.AddAsync(reaction);
@@ -71,7 +72,7 @@ namespace ReviewAPI.Controllers
         }
 
         // PUT: api/Categories/1/Items/1/Reviews/1/Reactions/1
-        [HttpPut("{reactionId}")]
+        [HttpPut("{reactionId}"), Authorize(Roles = "Admin,Member")]
         public async Task<IActionResult> UpdateReaction(int categoryId, int itemId, int reviewId, int reactionId, JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<Reaction>(data.GetRawText());
@@ -90,7 +91,7 @@ namespace ReviewAPI.Controllers
         }
 
         // DELETE: api/Categories/1/Items/1/Reviews/1/Reactions/1
-        [HttpDelete("{reactionId}")]
+        [HttpDelete("{reactionId}"), Authorize(Roles = "Admin,Member")]
         public async Task<IActionResult> DeleteReaction(int categoryId, int itemId, int reviewId, int reactionId)
         {
             var category = await _context.Categories.FindAsync(categoryId);

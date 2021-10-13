@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,13 +9,13 @@ namespace ReviewAPI.Models
 {
     public class User : IdentityUser
     {
-        [Required, Column(TypeName = "nvarchar(150)")]
+        [Column(TypeName = "nvarchar(150)")]
         public string FirstName { get; set; }
 
-        [Required, Column(TypeName = "nvarchar(150)")]
+        [Column(TypeName = "nvarchar(150)")]
         public string LastName { get; set; }
 
-        [Required, Column(TypeName = "nvarchar(150)")]
+        [Column(TypeName = "nvarchar(150)")]
         public string Role { get; set; }
 
         [JsonIgnore]

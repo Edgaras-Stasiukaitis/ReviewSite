@@ -17,6 +17,7 @@ namespace ReviewAPI.Models
         public DbSet<User> ApplicationUsers { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Reaction> Reactions { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseLazyLoadingProxies();
     }

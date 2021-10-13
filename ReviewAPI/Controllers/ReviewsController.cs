@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ReviewAPI.ModelDtos;
 using ReviewAPI.Models;
+using System;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -47,7 +48,7 @@ namespace ReviewAPI.Controllers
         }
 
         // POST: api/Categories/1/Items/1/Reviews
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Admin,Member")]
         public async Task<IActionResult> AddReview(int categoryId, int itemId, JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<Review>(data.GetRawText());
@@ -60,7 +61,7 @@ namespace ReviewAPI.Controllers
             {
                 Description = model.Description,
                 Rating = (int)model.Rating,
-                User = _userManager.Users.FirstOrDefault(), // temporary
+                User = await GetCurrentUser(),
                 Item = item
             };
             await _context.Reviews.AddAsync(review);
@@ -69,7 +70,7 @@ namespace ReviewAPI.Controllers
         }
 
         // PUT: api/Categories/1/Items/1/Reviews/1
-        [HttpPut("{reviewId}")]
+        [HttpPut("{reviewId}"), Authorize(Roles = "Admin,Member")]
         public async Task<IActionResult> UpdateReview(int categoryId, int itemId, int reviewId, JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<Review>(data.GetRawText());
@@ -81,6 +82,7 @@ namespace ReviewAPI.Controllers
             if (review == null) return NotFound(new { message = $"Could not update review. Review by id {reviewId} not found." });
             if (model.Rating == 0) return BadRequest(new { message = "Review rating is required." });
             review.Description = model.Description;
+            review.UpdateDate = DateTime.Now;
             review.Rating = (int)model.Rating;
             _context.Reviews.Update(review);
             await _context.SaveChangesAsync();
@@ -88,7 +90,7 @@ namespace ReviewAPI.Controllers
         }
 
         // DELETE: api/Categories/1/Items/1/Reviews/1
-        [HttpDelete("{reviewId}")]
+        [HttpDelete("{reviewId}"), Authorize(Roles = "Admin,Member")]
         public async Task<IActionResult> DeleteReview(int categoryId, int itemId, int reviewId)
         {
             var category = await _context.Categories.FindAsync(categoryId);

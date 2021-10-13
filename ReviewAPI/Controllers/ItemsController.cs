@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -39,7 +40,7 @@ namespace ReviewAPI.Controllers
         }
 
         // POST: api/Categories/1/Items
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddItem(int categoryId, JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<Item>(data.GetRawText());
@@ -60,7 +61,7 @@ namespace ReviewAPI.Controllers
         }
 
         // PUT: api/Categories/1/Items/1
-        [HttpPut("{itemId}")]
+        [HttpPut("{itemId}"), Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateItem(int categoryId, int itemId, JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<Item>(data.GetRawText());
@@ -79,7 +80,7 @@ namespace ReviewAPI.Controllers
         }
 
         // DELETE: api/Categories/1/Items/1
-        [HttpDelete("{itemId}")]
+        [HttpDelete("{itemId}"), Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteItem(int categoryId, int itemId)
         {
             var category = await _context.Categories.FindAsync(categoryId);

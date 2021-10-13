@@ -44,11 +44,10 @@ namespace ReviewAPI
         {
             services.AddAutoMapper(typeof(Startup));
             services.Configure<ApplicationSettings>(Configuration.GetSection("ApplicationSettings"));
-
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString("IdentityConnection")).UseLazyLoadingProxies());
-            services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<DatabaseContext>().AddDefaultTokenProviders();
+            services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<DatabaseContext>();//.AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -62,7 +61,17 @@ namespace ReviewAPI
             services.AddCors();
 
             var key = Encoding.UTF8.GetBytes(Configuration["ApplicationSettings:JWT_Secret"].ToString());
-
+            var tokenValidationParams = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                RequireExpirationTime = false,
+                ClockSkew = TimeSpan.Zero
+            };
+            services.AddSingleton(tokenValidationParams);
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -70,16 +79,8 @@ namespace ReviewAPI
                 x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(x =>
             {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = false;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ClockSkew = TimeSpan.Zero
-                };
+                x.SaveToken = true;
+                x.TokenValidationParameters = tokenValidationParams;
             });
 
             services.AddControllers();
@@ -117,6 +118,8 @@ namespace ReviewAPI
                     context.Response.StatusCode = StatusCodes.Status404NotFound;
                     await context.Response.WriteAsync($"Requested page ({context.Request.GetEncodedUrl()}) was not found.");
                 }
+                if (context.Response.StatusCode == StatusCodes.Status401Unauthorized)
+                    await context.Response.WriteAsync($"Restricted access to requested API method.");
             });
 
             app.UseAuthorization();

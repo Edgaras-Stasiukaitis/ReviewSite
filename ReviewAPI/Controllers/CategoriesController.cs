@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using AutoMapper;
 using ReviewAPI.ModelDtos;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ReviewAPI.Controllers
 {
@@ -37,7 +38,7 @@ namespace ReviewAPI.Controllers
         }
 
         // POST: api/Categories
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddCategory(JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<Category>(data.GetRawText());
@@ -53,7 +54,7 @@ namespace ReviewAPI.Controllers
         }
 
         // PUT: api/Categories/1
-        [HttpPut("{id}")]
+        [HttpPut("{id}"), Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateCategory(int id, JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<Category>(data.GetRawText());
@@ -68,7 +69,7 @@ namespace ReviewAPI.Controllers
         }
 
         // DELETE: api/Categories/1
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var category = await _context.Categories.FindAsync(id);
