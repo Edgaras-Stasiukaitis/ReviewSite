@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using ReviewAPI.ModelDtos;
 using ReviewAPI.Models;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Linq;
-using AutoMapper;
-using ReviewAPI.ModelDtos;
-using Microsoft.AspNetCore.Authorization;
 
 namespace ReviewAPI.Controllers
 {

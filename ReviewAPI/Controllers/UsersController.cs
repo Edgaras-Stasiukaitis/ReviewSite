@@ -1,21 +1,20 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using ReviewAPI.ModelDtos;
 using ReviewAPI.Models;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using AutoMapper;
-using ReviewAPI.ModelDtos;
 
 namespace ReviewAPI.Controllers
 {
@@ -93,16 +92,8 @@ namespace ReviewAPI.Controllers
             var model = JsonConvert.DeserializeObject<dynamic>(data.GetRawText());
             var user = await _userManager.FindByNameAsync((string)model.UserName);
             if (user != null && await _userManager.CheckPasswordAsync(user, (string)model.Password))
-            {
-                var token = await GenerateAccessToken(user);
-                return Ok(new
-                {
-                    token,
-                    User = _mapper.Map<UserDto>(user)
-                });
-            }
-            else
-                return BadRequest(new { message = "Username or password is incorrect." });
+                return Ok(await GenerateAccessToken(user));
+            return BadRequest(new { message = "Username or password is incorrect." });
         }
 
         [HttpPost, Route("RefreshToken")]
@@ -111,23 +102,11 @@ namespace ReviewAPI.Controllers
             if (ModelState.IsValid)
             {
                 var result = await VerifyAndGenerateToken(tokenRequest);
-                if (result == null) return BadRequest(new
-                {
-                    Success = false,
-                    Errors = new List<string>()
-                    {
-                        "Invalid tokens."
-                    }
-                });
+                if (result == null) return BadRequest(new { message = "Invalid tokens." });
+                if (result.GetType().GetProperty("message") != null) return BadRequest(result);
                 return Ok(result);
             }
-            return BadRequest(new
-            {
-                Errors = new List<string>() {
-                    "Invalid payload"
-                },
-                Success = false
-            });
+            return BadRequest(new { message = "Invalid payload" });
         }
 
         [HttpPost, Route("Logout"), Authorize]
@@ -165,15 +144,7 @@ namespace ReviewAPI.Controllers
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var storedToken = await _context.RefreshTokens.FirstOrDefaultAsync(x => x.Token == tokenRequest.RefreshToken);
-            if (storedToken == null)
-                return new
-                {
-                    Success = false,
-                    Errors = new List<string>()
-                    {
-                        "Token does not exist."
-                    }
-                };
+            if (storedToken == null) return new { message = "Token does not exist." };
             if (storedToken.AddedDate.AddMinutes(TokenExpirationTime) >= DateTime.Now)
             {
                 var tokenInVerification = jwtTokenHandler.ValidateToken(tokenRequest.Token, _tokenValidationParams, out var validatedToken);
@@ -184,44 +155,12 @@ namespace ReviewAPI.Controllers
                 }
                 var utcExpiryTime = long.Parse(tokenInVerification.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
                 var expiryDate = UnixTimeStampToDateTime(utcExpiryTime);
-                if (expiryDate > DateTime.UtcNow)
-                    return new
-                    {
-                        Success = false,
-                        Errors = new List<string>()
-                        {
-                            "Token has not yet expired."
-                        }
-                };
+                if (expiryDate > DateTime.UtcNow) return new { message = "Token has not yet expired." };
                 var jti = tokenInVerification.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Jti).Value;
-                if (storedToken.JwtId != jti)
-                    return new
-                    {
-                        Success = false,
-                        Errors = new List<string>()
-                        {
-                            "Token does not match."
-                        }
-                    };
+                if (storedToken.JwtId != jti) return new { message = "Token does not match." };
             }
-            if (storedToken.IsUsed)
-                return new
-                {
-                    Success = false,
-                    Errors = new List<string>()
-                    {
-                        "Token has been used."
-                    }
-                };
-            if (storedToken.IsRevoked)
-                return new
-                {
-                    Success = false,
-                    Errors = new List<string>()
-                    {
-                        "Token has been revoked."
-                    }
-                };
+            if (storedToken.IsUsed) return new { message = "Token has been used." };
+            if (storedToken.IsRevoked) return new { message = "Token has been revoked." };
             storedToken.IsUsed = true;
             _context.RefreshTokens.Update(storedToken);
             await _context.SaveChangesAsync();
@@ -237,8 +176,12 @@ namespace ReviewAPI.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                        new Claim("UserID", user.Id.ToString()),
+                        new Claim("id", user.Id.ToString()),
                         new Claim(_options.ClaimsIdentity.RoleClaimType, role),
+                        new Claim("userName", user.UserName),
+                        new Claim("email", user.Email),
+                        new Claim("firstName", user.FirstName),
+                        new Claim("lastName", user.LastName),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(TokenExpirationTime),
@@ -263,7 +206,6 @@ namespace ReviewAPI.Controllers
             {
                 Token = token,
                 RefreshToken = refreshToken.Token,
-                Success = true
             };
         }
 

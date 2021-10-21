@@ -53,7 +53,7 @@ namespace ReviewAPI.Controllers
         {
             var model = JsonConvert.DeserializeObject<Review>(data.GetRawText());
             var category = await _context.Categories.FindAsync(categoryId);
-            if(category == null) return NotFound(new { message = $"Could not add review. Category by id {categoryId} not found." });
+            if (category == null) return NotFound(new { message = $"Could not add review. Category by id {categoryId} not found." });
             var item = category.Items.FirstOrDefault(x => x.Id == itemId);
             if (item == null) return NotFound(new { message = $"Could not add review. Item by id {itemId} not found." });
             if (model.Rating == 0) return BadRequest(new { message = "Review rating is required." });

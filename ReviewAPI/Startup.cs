@@ -10,13 +10,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using ReviewAPI.Controllers;
 using ReviewAPI.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -119,7 +116,9 @@ namespace ReviewAPI
                     await context.Response.WriteAsync($"Requested page ({context.Request.GetEncodedUrl()}) was not found.");
                 }
                 if (context.Response.StatusCode == StatusCodes.Status401Unauthorized)
-                    await context.Response.WriteAsync($"Restricted access to requested API method.");
+                    await context.Response.WriteAsync($"Unauthorized user access to requested API method.");
+                if (context.Response.StatusCode == StatusCodes.Status403Forbidden)
+                    await context.Response.WriteAsync($"Forbidden access to requested API method.");
             });
 
             app.UseAuthorization();
