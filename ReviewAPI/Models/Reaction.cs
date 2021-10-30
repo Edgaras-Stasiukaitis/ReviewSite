@@ -11,7 +11,7 @@ namespace ReviewAPI.Models
         DownVote = 2
     }
 
-    public class Reaction
+    public class Reaction : IUserOwnedResource
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }

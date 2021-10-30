@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using ReviewAPI.Auth;
 using ReviewAPI.ModelDtos;
 using ReviewAPI.Models;
 using System;
@@ -57,11 +58,11 @@ namespace ReviewAPI.Controllers
             return Ok(_mapper.Map<UserDto>(user));
         }
 
-        [HttpPost, Route("Register")]
-        public async Task<IActionResult> Register(JsonElement data)
+        [HttpPost, Route("Register/{role?}")]
+        public async Task<IActionResult> Register(JsonElement data, string role = "Member")
         {
             var model = JsonConvert.DeserializeObject<dynamic>(data.GetRawText());
-            model.Role = "Admin";
+            model.Role = role;
             var applicationUser = new User()
             {
                 UserName = model.UserName,
@@ -89,11 +90,18 @@ namespace ReviewAPI.Controllers
         [HttpPost, Route("Login")]
         public async Task<IActionResult> Login(JsonElement data)
         {
-            var model = JsonConvert.DeserializeObject<dynamic>(data.GetRawText());
-            var user = await _userManager.FindByNameAsync((string)model.UserName);
-            if (user != null && await _userManager.CheckPasswordAsync(user, (string)model.Password))
-                return Ok(await GenerateAccessToken(user));
-            return BadRequest(new { message = "Username or password is incorrect." });
+            try
+            {
+                var model = JsonConvert.DeserializeObject<dynamic>(data.GetRawText());
+                var user = await _userManager.FindByNameAsync((string)model.UserName);
+                if (user != null && await _userManager.CheckPasswordAsync(user, (string)model.Password))
+                    return Ok(await GenerateAccessToken(user));
+                return BadRequest(new { message = "Username or password is incorrect." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPost, Route("RefreshToken")]
@@ -176,13 +184,13 @@ namespace ReviewAPI.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                        new Claim("id", user.Id.ToString()),
-                        new Claim(_options.ClaimsIdentity.RoleClaimType, role),
-                        new Claim("userName", user.UserName),
-                        new Claim("email", user.Email),
-                        new Claim("firstName", user.FirstName),
-                        new Claim("lastName", user.LastName),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                    new Claim(CustomClaims.UserId, user.Id.ToString()),
+                    new Claim(_options.ClaimsIdentity.RoleClaimType, role),
+                    new Claim(CustomClaims.UserName, user.UserName),
+                    new Claim(CustomClaims.Email, user.Email),
+                    new Claim(CustomClaims.FirstName, user.FirstName),
+                    new Claim(CustomClaims.LastName, user.LastName),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(TokenExpirationTime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.JWT_Secret)), SecurityAlgorithms.HmacSha256Signature)
@@ -215,6 +223,6 @@ namespace ReviewAPI.Controllers
             return dateTimeVal.AddSeconds(unixTimeStamp).ToUniversalTime();
         }
 
-        private async Task<User> GetCurrentUser() => await _userManager.FindByIdAsync(User.Claims.First(c => c.Type == "UserID").Value);
+        private async Task<User> GetCurrentUser() => await _userManager.FindByIdAsync(User.Claims.First(c => c.Type == CustomClaims.UserId).Value);
     }
 }

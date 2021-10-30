@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using ReviewAPI.Controllers;
 using ReviewAPI.Models;
 using System;
@@ -44,7 +46,7 @@ namespace ReviewAPI
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(Configuration.GetConnectionString("IdentityConnection")).UseLazyLoadingProxies());
-            services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<DatabaseContext>();//.AddDefaultTokenProviders();
+            services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<DatabaseContext>().AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -79,6 +81,11 @@ namespace ReviewAPI
                 x.SaveToken = true;
                 x.TokenValidationParameters = tokenValidationParams;
             });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("SameUser", policy => policy.Requirements.Add(new SameUserRequirement()));
+            });
+            services.AddSingleton<IAuthorizationHandler, SameUserAuthorizationHandler>();
 
             services.AddControllers();
 
@@ -113,12 +120,12 @@ namespace ReviewAPI
                 if (context.GetEndpoint() == null)
                 {
                     context.Response.StatusCode = StatusCodes.Status404NotFound;
-                    await context.Response.WriteAsync($"Requested page ({context.Request.GetEncodedUrl()}) was not found.");
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(new { message = $"Requested endpoint ({context.Request.GetEncodedUrl()}) was not found." }));
                 }
                 if (context.Response.StatusCode == StatusCodes.Status401Unauthorized)
-                    await context.Response.WriteAsync($"Unauthorized user access to requested API method.");
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(new { message = "User token has expired or is non existent." }));
                 if (context.Response.StatusCode == StatusCodes.Status403Forbidden)
-                    await context.Response.WriteAsync($"Forbidden access to requested API method.");
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(new { message = "User has no access to requested resource." }));
             });
 
             app.UseAuthorization();

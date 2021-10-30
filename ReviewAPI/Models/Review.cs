@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace ReviewAPI.Models
 {
-    public class Review
+    public class Review : IUserOwnedResource
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }

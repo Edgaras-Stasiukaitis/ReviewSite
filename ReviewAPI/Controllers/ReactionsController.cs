@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using ReviewAPI.Auth;
 using ReviewAPI.ModelDtos;
 using ReviewAPI.Models;
 using System.Linq;
@@ -19,12 +20,14 @@ namespace ReviewAPI.Controllers
         private readonly DatabaseContext _context;
         private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
+        private readonly IAuthorizationService _authorizationService;
 
-        public ReactionsController(DatabaseContext context, UserManager<User> userManager, IMapper mapper)
+        public ReactionsController(DatabaseContext context, UserManager<User> userManager, IMapper mapper, IAuthorizationService authorizationService)
         {
             _context = context;
             _userManager = userManager;
             _mapper = mapper;
+            _authorizationService = authorizationService;
         }
 
         // GET: api/Categories/1/Items/1/Reviews/1/Reactions
@@ -76,14 +79,16 @@ namespace ReviewAPI.Controllers
         public async Task<IActionResult> UpdateReaction(int categoryId, int itemId, int reviewId, int reactionId, JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<Reaction>(data.GetRawText());
+            var reaction = await _context.Reactions.FindAsync(reactionId);
+            if (reaction == null) return NotFound(new { message = $"Could not update reaction. Reaction by id {reactionId} not found." });
+            var authResult = await _authorizationService.AuthorizeAsync(User, reaction, "SameUser");
+            if (!authResult.Succeeded) return Forbid();
             var category = await _context.Categories.FindAsync(categoryId);
             if (category == null) return NotFound(new { message = $"Could not update reaction. Category by id {categoryId} not found." });
             var item = category.Items.FirstOrDefault(x => x.Id == itemId);
             if (item == null) return NotFound(new { message = $"Could not update reaction. Item by id {itemId} not found." });
             var review = item.Reviews.FirstOrDefault(x => x.Id == reviewId);
             if (review == null) return NotFound(new { message = $"Could not update reaction. Review by id {reviewId} not found." });
-            var reaction = review.Reactions.FirstOrDefault(x => x.Id == reactionId);
-            if (reaction == null) return NotFound(new { message = $"Could not update reaction. Reaction by id {reactionId} not found." });
             reaction.ReactionState = model.ReactionState;
             _context.Reactions.Update(reaction);
             await _context.SaveChangesAsync();
@@ -94,19 +99,21 @@ namespace ReviewAPI.Controllers
         [HttpDelete("{reactionId}"), Authorize(Roles = "Admin,Member")]
         public async Task<IActionResult> DeleteReaction(int categoryId, int itemId, int reviewId, int reactionId)
         {
+            var reaction = await _context.Reactions.FindAsync(reactionId);
+            if (reaction == null) return NotFound(new { message = $"Could not delete reaction. Reaction by id {reactionId} not found." });
+            var authResult = await _authorizationService.AuthorizeAsync(User, reaction, "SameUser");
+            if (!authResult.Succeeded) return Forbid();
             var category = await _context.Categories.FindAsync(categoryId);
             if (category == null) return NotFound(new { message = $"Could not delete reaction. Category by id {categoryId} not found." });
             var item = category.Items.FirstOrDefault(x => x.Id == itemId);
             if (item == null) return NotFound(new { message = $"Could not delete reaction. Item by id {itemId} not found." });
             var review = item.Reviews.FirstOrDefault(x => x.Id == reviewId);
             if (review == null) return NotFound(new { message = $"Could not delete reaction. Review by id {reviewId} not found." });
-            var reaction = review.Reactions.FirstOrDefault(x => x.Id == reactionId);
-            if (reaction == null) return NotFound(new { message = $"Could not delete reaction. Reaction by id {reactionId} not found." });
             _context.Reactions.Remove(reaction);
             await _context.SaveChangesAsync();
             return Ok(_mapper.Map<ReactionDto>(reaction));
         }
 
-        private async Task<User> GetCurrentUser() => await _userManager.FindByIdAsync(User.Claims.First(c => c.Type == "UserID").Value);
+        private async Task<User> GetCurrentUser() => await _userManager.FindByIdAsync(User.Claims.First(c => c.Type == CustomClaims.UserId).Value);
     }
 }

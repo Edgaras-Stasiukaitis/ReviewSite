@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using ReviewAPI.Auth;
 using ReviewAPI.ModelDtos;
 using ReviewAPI.Models;
 using System;
@@ -20,12 +21,14 @@ namespace ReviewAPI.Controllers
         private readonly DatabaseContext _context;
         private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
+        private readonly IAuthorizationService _authorizationService;
 
-        public ReviewsController(DatabaseContext context, UserManager<User> userManager, IMapper mapper)
+        public ReviewsController(DatabaseContext context, UserManager<User> userManager, IMapper mapper, IAuthorizationService authorizationService)
         {
             _context = context;
             _userManager = userManager;
             _mapper = mapper;
+            _authorizationService = authorizationService;
         }
 
         // GET: api/Categories/1/Items/1/Reviews
@@ -74,12 +77,14 @@ namespace ReviewAPI.Controllers
         public async Task<IActionResult> UpdateReview(int categoryId, int itemId, int reviewId, JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<Review>(data.GetRawText());
+            var review = await _context.Reviews.FindAsync(reviewId);
+            if (review == null) return NotFound(new { message = $"Could not update review. Review by id {reviewId} not found." });
+            var authResult = await _authorizationService.AuthorizeAsync(User, review, "SameUser");
+            if (!authResult.Succeeded) return Forbid();
             var category = await _context.Categories.FindAsync(categoryId);
             if (category == null) return NotFound(new { message = $"Could not update review. Category by id {categoryId} not found." });
             var item = category.Items.FirstOrDefault(x => x.Id == itemId);
             if (item == null) return NotFound(new { message = $"Could not update review. Item by id {itemId} not found." });
-            var review = item.Reviews.FirstOrDefault(x => x.Id == reviewId);
-            if (review == null) return NotFound(new { message = $"Could not update review. Review by id {reviewId} not found." });
             if (model.Rating == 0) return BadRequest(new { message = "Review rating is required." });
             review.Description = model.Description;
             review.UpdateDate = DateTime.Now;
@@ -93,12 +98,14 @@ namespace ReviewAPI.Controllers
         [HttpDelete("{reviewId}"), Authorize(Roles = "Admin,Member")]
         public async Task<IActionResult> DeleteReview(int categoryId, int itemId, int reviewId)
         {
+            var review = await _context.Reviews.FindAsync(reviewId);
+            if (review == null) return NotFound(new { message = $"Could not delete review. Review by id {reviewId} not found." });
+            var authResult = await _authorizationService.AuthorizeAsync(User, review, "SameUser");
+            if (!authResult.Succeeded) return Forbid();
             var category = await _context.Categories.FindAsync(categoryId);
             if (category == null) return NotFound(new { message = $"Could not delete review. Category by id {categoryId} not found." });
             var item = category.Items.FirstOrDefault(x => x.Id == itemId);
             if (item == null) return NotFound(new { message = $"Could not delete review. Item by id {itemId} not found." });
-            var review = item.Reviews.FirstOrDefault(x => x.Id == reviewId);
-            if (review == null) return NotFound(new { message = $"Could not delete review. Review by id {reviewId} not found." });
             var reactions = await _context.Reactions.Where(x => x.Review.Id == reviewId).ToListAsync();
             if (reactions.Count != 0) _context.Reactions.RemoveRange(reactions);
             _context.Reviews.Remove(review);
@@ -106,6 +113,6 @@ namespace ReviewAPI.Controllers
             return Ok(_mapper.Map<ReviewDto>(review));
         }
 
-        private async Task<User> GetCurrentUser() => await _userManager.FindByIdAsync(User.Claims.First(c => c.Type == "UserID").Value);
+        private async Task<User> GetCurrentUser() => await _userManager.FindByIdAsync(User.Claims.First(c => c.Type == CustomClaims.UserId).Value);
     }
 }
