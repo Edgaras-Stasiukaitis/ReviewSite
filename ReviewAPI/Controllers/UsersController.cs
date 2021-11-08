@@ -74,9 +74,8 @@ namespace ReviewAPI.Controllers
             };
             try
             {
-                if (await _userManager.FindByNameAsync(applicationUser.UserName) != null)
-                    return BadRequest(new { message = $"Could not register user. User with username {applicationUser.UserName} is already registered." });
                 var result = await _userManager.CreateAsync(applicationUser, (string)model.Password);
+                if (!result.Succeeded) return BadRequest(result);
                 await _userManager.AddToRoleAsync(applicationUser, (string)model.Role);
                 await _context.SaveChangesAsync();
                 return Ok(result);
@@ -125,7 +124,7 @@ namespace ReviewAPI.Controllers
             var tokens = await _context.RefreshTokens.Where(x => x.User == user).ToListAsync();
             _context.RefreshTokens.RemoveRange(tokens);
             await _context.SaveChangesAsync();
-            return Ok($"User {user.UserName} successfully logged out.");
+            return Ok(new { message = $"User {user.UserName} has been successfully logged out." });
         }
 
         [HttpDelete("{id}"), Authorize(Roles = "Admin")]

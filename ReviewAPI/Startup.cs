@@ -50,8 +50,8 @@ namespace ReviewAPI
 
             services.Configure<IdentityOptions>(options =>
             {
-                options.Password.RequireDigit = false;
-                options.Password.RequireUppercase = false;
+                options.Password.RequireDigit = true;
+                options.Password.RequireUppercase = true;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireLowercase = false;
                 options.Password.RequiredLength = 8;
@@ -119,13 +119,20 @@ namespace ReviewAPI
                 await next.Invoke();
                 if (context.GetEndpoint() == null)
                 {
+                    context.Response.ContentType = "application/json";
                     context.Response.StatusCode = StatusCodes.Status404NotFound;
                     await context.Response.WriteAsync(JsonConvert.SerializeObject(new { message = $"Requested endpoint ({context.Request.GetEncodedUrl()}) was not found." }));
                 }
                 if (context.Response.StatusCode == StatusCodes.Status401Unauthorized)
+                {
+                    context.Response.ContentType = "application/json";
                     await context.Response.WriteAsync(JsonConvert.SerializeObject(new { message = "User token has expired or is non existent." }));
+                }
                 if (context.Response.StatusCode == StatusCodes.Status403Forbidden)
+                {
+                    context.Response.ContentType = "application/json";
                     await context.Response.WriteAsync(JsonConvert.SerializeObject(new { message = "User has no access to requested resource." }));
+                }
             });
 
             app.UseAuthorization();
