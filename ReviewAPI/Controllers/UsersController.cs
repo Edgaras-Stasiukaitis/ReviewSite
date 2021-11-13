@@ -28,7 +28,7 @@ namespace ReviewAPI.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private const int TokenExpirationTime = 5;
+        private const int TokenExpirationTime = 300;
 
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
@@ -50,12 +50,48 @@ namespace ReviewAPI.Controllers
         [HttpGet, Authorize(Roles = "Admin")]
         public async Task<object> GetUsers() => await _userManager.Users.Select(user => _mapper.Map<UserDto>(user)).ToListAsync();
 
+        [HttpGet, Route("{userId}/Reviews")]
+        public async Task<IActionResult> GetReviews(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound(new { message = $"Could not retrieve reviews. User by id {userId} not found." });
+            return Ok(user.Reviews.Select(r => _mapper.Map<ReviewDto>(r)));
+        }
+
+        [HttpGet, Route("{userId}/Reactions")]
+        public async Task<object> GetReactions(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound(new { message = $"Could not retrieve reactions. User by id {userId} not found." });
+            return Ok(user.Reactions.Select(r => _mapper.Map<ReactionDto>(r)));
+        }
+
         [HttpGet("{id}"), Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound(new { message = $"Could not retrieve user. User by id {id} not found." });
             return Ok(_mapper.Map<UserDto>(user));
+        }
+
+        [HttpGet, Route("{userId}/Reviews/{reviewId}")]
+        public async Task<IActionResult> GetReview(string userId, int reviewId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound(new { message = $"User by id {userId} not found." });
+            var review = user.Reviews.FirstOrDefault(r => r.Id == reviewId);
+            if (review == null) return NotFound(new { message = $"Could not retrieve review. Review by {reviewId} not found." });
+            return Ok(_mapper.Map<ReviewDto>(review));
+        }
+
+        [HttpGet, Route("{userId}/Reaction/{reactionId}")]
+        public async Task<IActionResult> GetReaction(string userId, int reactionId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound(new { message = $"User by id {userId} not found." });
+            var reaction = user.Reactions.FirstOrDefault(r => r.Id == reactionId);
+            if (reaction == null) return NotFound(new { message = $"Could not retrieve reaction. Reaction by {reactionId} not found." });
+            return Ok(_mapper.Map<ReactionDto>(reaction));
         }
 
         [HttpPost, Route("Register/{role?}")]

@@ -54,7 +54,7 @@ namespace ReviewAPI.Controllers
         [HttpPost, Authorize(Roles = "Admin,Member")]
         public async Task<IActionResult> AddReview(int categoryId, int itemId, JsonElement data)
         {
-            var model = JsonConvert.DeserializeObject<Review>(data.GetRawText());
+            var model = JsonConvert.DeserializeObject<dynamic>(data.GetRawText());
             var category = await _context.Categories.FindAsync(categoryId);
             if (category == null) return NotFound(new { message = $"Could not add review. Category by id {categoryId} not found." });
             var item = category.Items.FirstOrDefault(x => x.Id == itemId);
@@ -63,7 +63,7 @@ namespace ReviewAPI.Controllers
             var review = new Review
             {
                 Description = model.Description,
-                Rating = (int)model.Rating,
+                Rating = int.TryParse((string)model.Rating, out int res) ? res : 0,
                 User = await GetCurrentUser(),
                 Item = item
             };
@@ -76,7 +76,7 @@ namespace ReviewAPI.Controllers
         [HttpPut("{reviewId}"), Authorize(Roles = "Admin,Member")]
         public async Task<IActionResult> UpdateReview(int categoryId, int itemId, int reviewId, JsonElement data)
         {
-            var model = JsonConvert.DeserializeObject<Review>(data.GetRawText());
+            var model = JsonConvert.DeserializeObject<dynamic>(data.GetRawText());
             var review = await _context.Reviews.FindAsync(reviewId);
             if (review == null) return NotFound(new { message = $"Could not update review. Review by id {reviewId} not found." });
             var authResult = await _authorizationService.AuthorizeAsync(User, review, "SameUser");
@@ -88,7 +88,7 @@ namespace ReviewAPI.Controllers
             if (model.Rating == 0) return BadRequest(new { message = "Review rating is required." });
             review.Description = model.Description;
             review.UpdateDate = DateTime.Now;
-            review.Rating = (int)model.Rating;
+            review.Rating = int.TryParse((string)model.Rating, out int res) ? res : 0;
             _context.Reviews.Update(review);
             await _context.SaveChangesAsync();
             return Ok(_mapper.Map<ReviewDto>(review));

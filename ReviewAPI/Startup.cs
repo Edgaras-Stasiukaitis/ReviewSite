@@ -50,11 +50,11 @@ namespace ReviewAPI
 
             services.Configure<IdentityOptions>(options =>
             {
-                options.Password.RequireDigit = true;
-                options.Password.RequireUppercase = true;
+                options.Password.RequireDigit = false;
+                options.Password.RequireUppercase = false;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireLowercase = false;
-                options.Password.RequiredLength = 8;
+                options.Password.RequiredLength = 4;
             });
 
             services.AddCors();
