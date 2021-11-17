@@ -24,3 +24,9 @@ export const registerSchema = yup.object().shape({
     lastname: yup.string()
         .required("Last name is required.")
 });
+
+export const categorySchema = yup.object().shape({
+    name: yup.string()
+        .required('Name is required.'),
+    imageUrl: yup.string()
+});

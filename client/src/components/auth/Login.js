@@ -1,6 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom'
-import loginImg from '../../assets/login.png';
+import { useNavigate, NavLink } from 'react-router-dom'
+import loginSvg from '../../assets/login.svg';
 import './style.scss';
 import { toast } from 'react-toastify';
 import { loginAction } from '../../redux/actions/userActions';
@@ -17,15 +17,14 @@ const Login = () => {
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(loginSchema)
     });
+    
     const onSubmit = async (data) => {
         const result = await login(data.username, data.password);
         if (result.ok) {
             dispatch(loginAction(await result.json()));
             toast.success("Successfully logged in!");
             navigate('/');
-        } else{
-            toast.error("Username or password is incorrect.")
-        }
+        } else toast.error("Invalid credentials.")
     }
 
     return (
@@ -34,7 +33,7 @@ const Login = () => {
                 <div className="header">Login</div>
                 <div className="content">
                     <div className="image">
-                        <img src={loginImg} alt="" />
+                        <img src={loginSvg} alt="" />
                     </div>
                     <div className="form">
                         <div className="form-group">
@@ -50,7 +49,11 @@ const Login = () => {
                     </div>
                 </div>
                 <div className="footer">
-                    <button type="submit" className="btn btn-primary">Login</button>
+                    <button type="submit" className="btn btn-success w-100">Login</button>
+                    <p>Don't have an account?</p>
+                    <NavLink to="/register">
+                        <button type="button" className="btn btn-primary w-100">Register</button>
+                    </NavLink>
                 </div>
             </div>
         </form>

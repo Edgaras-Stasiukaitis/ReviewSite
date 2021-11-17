@@ -1,7 +1,7 @@
 import { apiUrl } from '../utilities/constants';
 
-export const getCategories = async (id = '') => {
-    const result = await fetch(`${apiUrl}/Categories/${id}`,
+export const getItems = async (categoryId, itemId = '') => {
+    const result = await fetch(`${apiUrl}/Categories/${categoryId}/Items/${itemId}`,
     {
         method: 'GET',
         headers: {
@@ -11,15 +11,16 @@ export const getCategories = async (id = '') => {
     return result;
 }
 
-export const addCategory = async (params) => {
-    const category = { 
-        Name: params.name, 
+export const addItem = async (params) => {
+    const item = { 
+        Name: params.name,
+        Description: params.description,
         ImageUrl: params.imageUrl
     };
-    const result = await fetch(`${apiUrl}/Categories`,
+    const result = await fetch(`${apiUrl}/Categories/${params.categoryId}/Items`,
     {
         method: 'POST',
-        body: JSON.stringify(category),
+        body: JSON.stringify(item),
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${params.token}`
@@ -28,15 +29,16 @@ export const addCategory = async (params) => {
     return result;
 }
 
-export const updateCategory = async (params) => {
-    const category = { 
-        Name: params.name, 
+export const updateItem = async (params) => {
+    const item = { 
+        Name: params.name,
+        Description: params.description,
         ImageUrl: params.imageUrl
     };
-    const result = await fetch(`${apiUrl}/Categories/${params.id}`,
+    const result = await fetch(`${apiUrl}/Categories/${params.categoryId}/Items/${params.itemId}`,
     {
         method: 'PUT',
-        body: JSON.stringify(category),
+        body: JSON.stringify(item),
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${params.token}`
@@ -45,9 +47,8 @@ export const updateCategory = async (params) => {
     return result;
 }
 
-export const deleteCategory = async (params) => {
-    console.log(`${apiUrl}/Categories/${params.id}`);
-    const result = await fetch(`${apiUrl}/Categories/${params.id}`,
+export const deleteItem = async (params) => {
+    const result = await fetch(`${apiUrl}/Categories/${params.categoryId}/Items/${params.itemId}`,
     {
         method: 'DELETE',
         headers: {

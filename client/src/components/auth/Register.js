@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'
-import loginImg from '../../assets/login.png';
 import { toast } from 'react-toastify';
 import './style.scss';
 import { registration } from '../../api/user';
 import { useForm } from 'react-hook-form';
 import { registerSchema } from '../../utilities/schemas';
 import { yupResolver } from "@hookform/resolvers/yup";
+import authenticationSvg from '../../assets/authentication.svg';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -30,7 +30,7 @@ const Register = () => {
                 <div className="header">Register</div>
                 <div className="content">
                     <div className="image">
-                        <img src={loginImg} alt="" />
+                        <img src={authenticationSvg} alt="" />
                     </div>
                     <div className="form">
                         <div className="form-group">
@@ -61,7 +61,7 @@ const Register = () => {
                     </div>
                 </div>
                 <div className="footer">
-                    <button type="submit" className="btn btn-primary">Register</button>
+                    <button type="submit" className="btn btn-primary w-100">Register</button>
                 </div>
             </div>
         </form>
