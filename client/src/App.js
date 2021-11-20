@@ -1,6 +1,6 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import NotFound from './components/NotFound/NotFound';
+import NotFound from './components/notFound/NotFound';
 import Navigation from './components/navigation/Navigation.js';
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
@@ -8,6 +8,7 @@ import Home from './components/Home';
 import CategoryList from './components/categories/CategoryList';
 import ItemList from './components/items/ItemList';
 import ReviewList from './components/reviews/ReviewList';
+import ReviewForm from './components/reviews/review/ReviewForm';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -21,6 +22,7 @@ function App() {
           <Route path='/categories' element={<CategoryList />} />
           <Route path='/items' element={<ItemList />} />
           <Route path='/reviews' element={<ReviewList />} />
+          <Route path='/reviews/form' element={<ReviewForm />} />
           <Route path='/register' element={<Register />} />
           <Route path='/login' element={<Login />} />
           <Route path='*' element={<NotFound />} />

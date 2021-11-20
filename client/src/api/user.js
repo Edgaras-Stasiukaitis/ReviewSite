@@ -47,3 +47,19 @@ export const logout = async (token) => {
     });
     return result;
 }
+
+export const refreshToken = async (params) => {
+    const token = { 
+        token: params.token, 
+        refreshToken: params.refreshToken,
+    };
+    const result = await fetch(`${apiUrl}/Users/RefreshToken`,
+    {
+        method: 'POST',
+        body: JSON.stringify(token),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    return result;
+}

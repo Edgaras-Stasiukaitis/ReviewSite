@@ -1,23 +1,30 @@
 import jwt from 'jwt-decode';
+import { userConstants } from '../constants';
 
-export default function userReducer(state = {loggedIn: false, token: null, data: null}, action) {
-    switch(action.type) {
-        case 'LOGIN':
-            const userInfo = jwt(action.payload.token);
-            localStorage.setItem("user", JSON.stringify(action.payload));
+export default function userReducer(state = { loggedIn: false, token: null, refreshToken: null, data: null }, action) {
+    switch (action.type) {
+        case userConstants.LOGIN:
             return {
                 loggedIn: true,
                 token: action.payload.token,
-                data: userInfo
+                refreshToken: action.payload.refreshToken,
+                data: jwt(action.payload.token)
             }
-        case 'LOGOUT':
-            localStorage.removeItem("user");
+        case userConstants.LOGOUT:
             return {
                 loggedIn: false,
                 token: null,
+                refreshToken: null,
                 data: null
             }
-        default: 
+        case userConstants.REFRESH:
+            return {
+                loggedIn: true,
+                token: action.payload.token,
+                refreshToken: action.payload.refreshToken,
+                data: jwt(action.payload.token)
+            }
+        default:
             return state
     }
 }

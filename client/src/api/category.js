@@ -46,8 +46,7 @@ export const updateCategory = async (params) => {
 }
 
 export const deleteCategory = async (params) => {
-    console.log(`${apiUrl}/Categories/${params.id}`);
-    const result = await fetch(`${apiUrl}/Categories/${params.id}`,
+    const result = await fetch(`${apiUrl}/Categories/${params.categoryId}`,
     {
         method: 'DELETE',
         headers: {

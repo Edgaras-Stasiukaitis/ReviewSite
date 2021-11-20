@@ -1,0 +1,22 @@
+.writer {
+    font-weight: bold;
+}
+
+.creation-date {
+    text-align: right;
+    color: gray
+}
+
+.one-line{
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn-space{
+    margin-bottom: 10px;
+}
+
+.button-group{
+    display: flex;
+    justify-content: flex-end;
+}

@@ -11,6 +11,9 @@ namespace ReviewAPI.Models
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        [Required, Column(TypeName = "nvarchar(256)")]
+        public string Title { get; set; }
+
         [Column(TypeName = "text")]
         public string Description { get; set; }
 
@@ -23,13 +26,11 @@ namespace ReviewAPI.Models
         [Required, Column(TypeName = "datetime")]
         public DateTime UpdateDate { get; set; } = DateTime.Now;
 
-        [JsonIgnore]
         public virtual User User { get; set; }
 
         [JsonIgnore]
         public virtual Item Item { get; set; }
 
-        [JsonIgnore]
         public virtual ICollection<Reaction> Reactions { get; set; }
     }
 }

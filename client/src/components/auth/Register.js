@@ -45,12 +45,12 @@ const Register = () => {
                         </div>
                         <div className="form-group">
                             <label htmlFor="firstname">First name<span> *</span></label>
-                            <input type="text" name="firstname" placeholder="firstname" {...register('firstname')} />
+                            <input type="text" name="firstname" placeholder="first name" {...register('firstname')} />
                             <span>{errors?.firstname?.message}</span>
                         </div>
                         <div className="form-group">
                             <label htmlFor="lastname">Last name<span> *</span></label>
-                            <input type="text" name="lastname" placeholder="lastname" {...register('lastname')} />
+                            <input type="text" name="lastname" placeholder="last name" {...register('lastname')} />
                             <span>{errors?.lastname?.message}</span>
                         </div>
                         <div className="form-group">

@@ -35,7 +35,13 @@ namespace ReviewAPI.Controllers
         [HttpGet]
         public async Task<object> GetReviews(int categoryId, int itemId) => await _context.Reviews
             .Where(x => x.Item.Category.Id == categoryId && x.Item.Id == itemId)
-            .Select(r => _mapper.Map<ReviewDto>(r)).ToListAsync();
+            .Select(r => new
+            {
+                Review = _mapper.Map<ReviewDto>(r),
+                User = _mapper.Map<UserDto>(r.User),
+                r.Reactions
+            })
+            .ToListAsync();
 
         // GET: api/Categories/1/Items/1/Reviews/1
         [HttpGet("{reviewId}")]
@@ -59,9 +65,11 @@ namespace ReviewAPI.Controllers
             if (category == null) return NotFound(new { message = $"Could not add review. Category by id {categoryId} not found." });
             var item = category.Items.FirstOrDefault(x => x.Id == itemId);
             if (item == null) return NotFound(new { message = $"Could not add review. Item by id {itemId} not found." });
+            if (model.Title is null || model.Title == string.Empty) return BadRequest(new { message = "Review title is required." });
             if (model.Rating == 0) return BadRequest(new { message = "Review rating is required." });
             var review = new Review
             {
+                Title = model.Title,
                 Description = model.Description,
                 Rating = int.TryParse((string)model.Rating, out int res) ? res : 0,
                 User = await GetCurrentUser(),
@@ -85,7 +93,9 @@ namespace ReviewAPI.Controllers
             if (category == null) return NotFound(new { message = $"Could not update review. Category by id {categoryId} not found." });
             var item = category.Items.FirstOrDefault(x => x.Id == itemId);
             if (item == null) return NotFound(new { message = $"Could not update review. Item by id {itemId} not found." });
+            if (model.Title is null || model.Title == string.Empty) return BadRequest(new { message = "Review title is required." });
             if (model.Rating == 0) return BadRequest(new { message = "Review rating is required." });
+            review.Title = model.Title;
             review.Description = model.Description;
             review.UpdateDate = DateTime.Now;
             review.Rating = int.TryParse((string)model.Rating, out int res) ? res : 0;

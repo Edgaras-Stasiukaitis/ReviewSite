@@ -12,7 +12,8 @@ export const getReviews = async (categoryId, itemId, reviewId = '') => {
 }
 
 export const addReview = async (params) => {
-    const review = { 
+    const review = {
+        Title: params.title,
         Description: params.description,
         Rating: params.rating
     };
@@ -29,7 +30,8 @@ export const addReview = async (params) => {
 }
 
 export const updateReview = async (params) => {
-    const review = { 
+    const review = {
+        Title: params.title,
         Description: params.description,
         Rating: params.rating
     };
@@ -45,7 +47,7 @@ export const updateReview = async (params) => {
     return result;
 }
 
-export const deleteItem = async (params) => {
+export const deleteReview = async (params) => {
     const result = await fetch(`${apiUrl}/Categories/${params.categoryId}/Items/${params.itemId}/Reviews/${params.reviewId}`,
     {
         method: 'DELETE',

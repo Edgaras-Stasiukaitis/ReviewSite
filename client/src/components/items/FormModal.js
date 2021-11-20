@@ -2,7 +2,7 @@ import { Modal, Button } from "react-bootstrap";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { categorySchema } from "../../utilities/schemas";
 import { useForm } from "react-hook-form";
-import { addCategory, updateCategory } from "../../api/category";
+import { addItem, updateItem } from "../../api/item";
 import { toast } from "react-toastify";
 import '../auth/style.scss';
 import { useSelector } from "react-redux";
@@ -12,8 +12,9 @@ import { useDispatch } from "react-redux";
 
 const FormModal = (props) => {
   const dispatch = useDispatch();
-  const [name, setName] = useState(props?.name);
-  const [imageUrl, setImageUrl] = useState(props?.imageurl);
+  const [name, setName] = useState(props?.item?.name != null ? props.item.name : '');
+  const [description, setDescription] = useState(props?.item?.description != null ? props.item.description : '');
+  const [imageUrl, setImageUrl] = useState(props?.item?.imageURL != null ? props.item.imageURL : '');
   const user = useSelector(state => state.user);
 
   const { register, handleSubmit, formState: { errors } } = useForm({
@@ -23,21 +24,23 @@ const FormModal = (props) => {
   const onSubmit = async (data) => {
     const newToken = await dispatch(refreshTokenAction(user));
     const payload = {
-      id: props.id,
+      categoryId: props?.category?.id,
+      itemId: props?.item?.id,
       name: data.name,
+      description: data.description,
       imageUrl: data.imageUrl,
       token: newToken == null ? user.token : newToken.token
     }
 
     if (props.edit) {
-      const result = await updateCategory(payload);
+      const result = await updateItem(payload);
       if (result.ok) {
         toast.success("Successfully updated!");
         window.location.reload();
       }
       else toast.error("Invalid data provided.");
     } else {
-      const result = await addCategory(payload);
+      const result = await addItem(payload);
       if (result.ok) {
         toast.success("Successfully added!");
         window.location.reload();
@@ -74,6 +77,18 @@ const FormModal = (props) => {
                     {...register('name')}
                   />
                   <span>{errors?.name?.message}</span>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="description">Description</label>
+                  <input
+                    type="text"
+                    name="description"
+                    placeholder="description"
+                    defaultValue={description}
+                    onChange={e => setDescription(e.target.value)}
+                    {...register('description')}
+                  />
+                  <span>{errors?.description?.message}</span>
                 </div>
                 <div className="form-group">
                   <label htmlFor="imageUrl">Image url<span> *</span></label>

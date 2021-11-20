@@ -5,7 +5,6 @@ export const loginSchema = yup.object().shape({
         .required('Username is required.'),
     password: yup.string()
         .required('Password is required.')
-        .min(4, 'Password should be 4 chars minimum.')
         .matches(/[a-zA-Z]/, 'Password can only contain Latin letters.')
 });
 
@@ -29,4 +28,14 @@ export const categorySchema = yup.object().shape({
     name: yup.string()
         .required('Name is required.'),
     imageUrl: yup.string()
+});
+
+export const reviewSchema = yup.object().shape({
+    title: yup.string()
+        .required("Title is required.").max(64, "Maximum 64 symbols allowed in title."),
+    description: yup.string(),
+    uniqueRating: yup.number()
+        .min(1, "Rating is required.")
+        .max(5, "Rating can not bet greater than 5")
+        .required("Rating is required.")
 });

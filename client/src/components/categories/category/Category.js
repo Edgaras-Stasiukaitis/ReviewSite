@@ -4,17 +4,16 @@ import './category.css';
 import { useSelector } from 'react-redux';
 import { useState } from 'react';
 import FormModal from '../FormModal';
-import DeleteModal from '../DeleteModal';
+import DeleteModal from '../../../utilities/DeleteModal';
 import { NavLink } from 'react-router-dom';
 
 const Category = (props) => {
     const [editModalShow, setEditModalShow] = useState(false);
     const [deleteModalShow, setDeleteModalShow] = useState(false);
-
     const user = useSelector(state => state.user);
     return (
         <Card className="shadow zoom" >
-            <NavLink to="/items" state={{ category: props }} >
+            <NavLink to="/items" state={{...props}} >
                 <Card.Img variant="top" src="https://picsum.photos/1920/1080" />
                 <Card.Body>
                     <Card.Title>{props.name}</Card.Title>
@@ -37,12 +36,15 @@ const Category = (props) => {
                         show={editModalShow}
                         edit={1}
                         onHide={() => setEditModalShow(false)}
-                        {...props}
+                        id={props.id}
+                        name={props.name}
+                        imageurl={props.imageUrl}
                     />
                     <DeleteModal
                         show={deleteModalShow}
                         onHide={() => setDeleteModalShow(false)}
-                        {...props}
+                        categoryId={props.id}
+                        type='CATEGORY'
                     />
                 </div>
             ) : ''}

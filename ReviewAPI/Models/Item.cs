@@ -16,9 +16,6 @@ namespace ReviewAPI.Models
         [Column(TypeName = "text")]
         public string Description { get; set; }
 
-        [Column(TypeName = "float")]
-        public double Rating { get; set; }
-
         [Column(TypeName = "text")]
         public string ImageURL { get; set; }
 

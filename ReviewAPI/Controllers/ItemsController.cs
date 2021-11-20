@@ -50,7 +50,6 @@ namespace ReviewAPI.Controllers
             var item = new Item
             {
                 Name = model.Name,
-                Rating = model.Rating,
                 Description = model.Description,
                 ImageURL = model.ImageURL,
                 Category = category
@@ -71,7 +70,6 @@ namespace ReviewAPI.Controllers
             if (item == null) return NotFound(new { message = $"Could not update item. Item by id {itemId} not found." });
             if (model.Name == null) return BadRequest(new { message = "Item name is required." });
             item.Name = model.Name;
-            item.Rating = model.Rating;
             item.Description = model.Description;
             item.ImageURL = model.ImageURL;
             _context.Items.Update(item);

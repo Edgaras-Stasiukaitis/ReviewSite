@@ -11,15 +11,13 @@ const Navigation = () => {
     const [expanded, setExpanded] = useState(false);
     const dispatch = useDispatch();
     const user = useSelector(state => state.user);
-    if (user?.token == null) {
-        const localUser = JSON.parse(localStorage.getItem("user"));
-        if (localUser != null)
-            dispatch(loginAction(localUser));
-    }
+    const localUser = JSON.parse(localStorage.getItem("user"));
+
+    if (!user.loggedIn && localUser && Object.keys(localUser).length !== 0) dispatch(loginAction(localUser));
 
     const signOut = async () => {
-        const result = await logout(user.token);
-        if (result.ok) dispatch(logoutAction());
+        await logout(user.token);
+        dispatch(logoutAction());
         setExpanded(false);
     }
 

@@ -28,7 +28,7 @@ namespace ReviewAPI.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private const int TokenExpirationTime = 300;
+        private const int TokenExpirationTimeInSeconds = 300;
 
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
@@ -188,7 +188,7 @@ namespace ReviewAPI.Controllers
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var storedToken = await _context.RefreshTokens.FirstOrDefaultAsync(x => x.Token == tokenRequest.RefreshToken);
             if (storedToken == null) return new { message = "Token does not exist." };
-            if (storedToken.AddedDate.AddMinutes(TokenExpirationTime) >= DateTime.Now)
+            if (storedToken.AddedDate.AddSeconds(TokenExpirationTimeInSeconds) >= DateTime.Now)
             {
                 var tokenInVerification = jwtTokenHandler.ValidateToken(tokenRequest.Token, _tokenValidationParams, out var validatedToken);
                 if (validatedToken is JwtSecurityToken jwtSecurityToken)
@@ -227,7 +227,7 @@ namespace ReviewAPI.Controllers
                     new Claim(CustomClaims.LastName, user.LastName),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(TokenExpirationTime),
+                Expires = DateTime.UtcNow.AddSeconds(TokenExpirationTimeInSeconds),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.JWT_Secret)), SecurityAlgorithms.HmacSha256Signature)
             };
             var tokenHandler = new JwtSecurityTokenHandler();
