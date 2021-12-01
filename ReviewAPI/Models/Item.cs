@@ -19,7 +19,6 @@ namespace ReviewAPI.Models
         [Column(TypeName = "text")]
         public string ImageURL { get; set; }
 
-        [JsonIgnore]
         public virtual Category Category { get; set; }
 
         [JsonIgnore]

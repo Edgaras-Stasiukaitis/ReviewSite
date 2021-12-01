@@ -1,7 +1,23 @@
 .zoom {
-    transition: transform .2s;
+    transition: transform 0.2s;
 }
-  
+
 .zoom:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
+}
+
+.fixed-image {
+    padding-top: 20px;
+    height: 175px;
+    object-fit: contain;
+}
+
+.title {
+    color: black;
+}
+
+.admin-buttons {
+    position: absolute;
+    top: 0;
+    right: 0;
 }

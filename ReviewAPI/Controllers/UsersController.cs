@@ -31,16 +31,14 @@ namespace ReviewAPI.Controllers
         private const int TokenExpirationTimeInSeconds = 300;
 
         private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
         private readonly DatabaseContext _context;
         private readonly ApplicationSettings _appSettings;
         private readonly IMapper _mapper;
         private readonly TokenValidationParameters _tokenValidationParams;
 
-        public UsersController(UserManager<User> userManager, SignInManager<User> signInManager, DatabaseContext context, IOptions<ApplicationSettings> appSettings, IMapper mapper, TokenValidationParameters tokenValidationParams)
+        public UsersController(UserManager<User> userManager, DatabaseContext context, IOptions<ApplicationSettings> appSettings, IMapper mapper, TokenValidationParameters tokenValidationParams)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
             _appSettings = appSettings.Value;
             _context = context;
             _mapper = mapper;
@@ -55,7 +53,13 @@ namespace ReviewAPI.Controllers
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound(new { message = $"Could not retrieve reviews. User by id {userId} not found." });
-            return Ok(user.Reviews.Select(r => _mapper.Map<ReviewDto>(r)));
+            return Ok(user.Reviews.Select(r => new
+            {
+                Review = _mapper.Map<ReviewDto>(r),
+                Item = _mapper.Map<ItemDto>(r.Item),
+                Category = _mapper.Map<CategoryDto>(r.Item.Category),
+                r.Reactions
+            }));
         }
 
         [HttpGet, Route("{userId}/Reactions")]
@@ -63,10 +67,10 @@ namespace ReviewAPI.Controllers
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound(new { message = $"Could not retrieve reactions. User by id {userId} not found." });
-            return Ok(user.Reactions.Select(r => _mapper.Map<ReactionDto>(r)));
+            return Ok(user.Reactions);
         }
 
-        [HttpGet("{id}"), Authorize(Roles = "Admin")]
+        [HttpGet("{id}"), Authorize(Roles = "Admin,Member")]
         public async Task<IActionResult> GetUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -84,7 +88,7 @@ namespace ReviewAPI.Controllers
             return Ok(_mapper.Map<ReviewDto>(review));
         }
 
-        [HttpGet, Route("{userId}/Reaction/{reactionId}")]
+        [HttpGet, Route("{userId}/Reactions/{reactionId}")]
         public async Task<IActionResult> GetReaction(string userId, int reactionId)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -94,11 +98,11 @@ namespace ReviewAPI.Controllers
             return Ok(_mapper.Map<ReactionDto>(reaction));
         }
 
-        [HttpPost, Route("Register/{role?}")]
-        public async Task<IActionResult> Register(JsonElement data, string role = "Member")
+        [HttpPost, Route("Register")]
+        public async Task<IActionResult> Register(JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<dynamic>(data.GetRawText());
-            model.Role = role;
+            model.Role = "Member";
             var applicationUser = new User()
             {
                 UserName = model.UserName,
@@ -128,7 +132,7 @@ namespace ReviewAPI.Controllers
             try
             {
                 var model = JsonConvert.DeserializeObject<dynamic>(data.GetRawText());
-                var user = await _userManager.FindByNameAsync((string)model.UserName);
+                var user = await _userManager.FindByNameAsync((string)model?.UserName);
                 if (user != null && await _userManager.CheckPasswordAsync(user, (string)model.Password))
                     return Ok(await GenerateAccessToken(user));
                 return BadRequest(new { message = "Username or password is incorrect." });
@@ -169,16 +173,16 @@ namespace ReviewAPI.Controllers
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound(new { message = $"Could not delete user. User by id {id} not found" });
             var rolesForUser = await _userManager.GetRolesAsync(user);
-            using (var transaction = _context.Database.BeginTransaction())
+            await using (var transaction = await _context.Database.BeginTransactionAsync())
             {
-                if (rolesForUser.Count() > 0)
+                if (rolesForUser.Any())
                     foreach (var item in rolesForUser.ToList())
                         await _userManager.RemoveFromRoleAsync(user, item);
                 _context.Reactions.RemoveRange(_context.Reactions.Where(r => r.User.Id == id));
                 _context.Reviews.RemoveRange(_context.Reviews.Where(r => r.User.Id == id));
                 _context.RefreshTokens.RemoveRange(_context.RefreshTokens.Where(t => t.User.Id == id));
                 await _userManager.DeleteAsync(user);
-                transaction.Commit();
+                await transaction.CommitAsync();
             }
             return Ok(_mapper.Map<UserDto>(user));
         }
@@ -217,9 +221,9 @@ namespace ReviewAPI.Controllers
             var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
+                Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(CustomClaims.UserId, user.Id.ToString()),
+                    new Claim(CustomClaims.UserId, user.Id),
                     new Claim(_options.ClaimsIdentity.RoleClaimType, role),
                     new Claim(CustomClaims.UserName, user.UserName),
                     new Claim(CustomClaims.Email, user.Email),

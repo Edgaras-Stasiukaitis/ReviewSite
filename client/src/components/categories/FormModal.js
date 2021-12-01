@@ -4,16 +4,18 @@ import { categorySchema } from "../../utilities/schemas";
 import { useForm } from "react-hook-form";
 import { addCategory, updateCategory } from "../../api/category";
 import { toast } from "react-toastify";
-import '../auth/style.scss';
 import { useSelector } from "react-redux";
 import { useState } from "react";
 import { refreshTokenAction } from "../../redux/actions/userActions";
 import { useDispatch } from "react-redux";
+import "../../utilities/FormModal.scss";
+import { useNavigate } from "react-router-dom";
 
 const FormModal = (props) => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [name, setName] = useState(props?.name);
-  const [imageUrl, setImageUrl] = useState(props?.imageurl);
+  const [name, setName] = useState(props?.name ? props.name : '');
+  const [imageUrl, setImageUrl] = useState(props?.imageURL ? props.imageURL : '');
   const user = useSelector(state => state.user);
 
   const { register, handleSubmit, formState: { errors } } = useForm({
@@ -29,27 +31,19 @@ const FormModal = (props) => {
       token: newToken == null ? user.token : newToken.token
     }
 
-    if (props.edit) {
-      const result = await updateCategory(payload);
-      if (result.ok) {
-        toast.success("Successfully updated!");
-        window.location.reload();
-      }
-      else toast.error("Invalid data provided.");
-    } else {
-      const result = await addCategory(payload);
-      if (result.ok) {
-        toast.success("Successfully added!");
-        window.location.reload();
-      }
-      else toast.error("Invalid data provided.");
+    const result = props.edit ? await updateCategory(payload) : await addCategory(payload);
+    if (result.ok) {
+      toast.success(props.edit ? "Category updated!" : "Category added!");
+      navigate('/');
+      navigate('/categories');
     }
+    else toast.error("Invalid data provided.");
   }
 
   return (
     <Modal
       {...props}
-      size="lg"
+      size="md"
       aria-labelledby="contained-modal-title-vcenter"
       centered
     >
@@ -60,15 +54,16 @@ const FormModal = (props) => {
       </Modal.Header>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Modal.Body>
-          <div className="base-container">
+          <div className="base-form">
             <div className="content">
               <div className="form">
                 <div className="form-group">
                   <label htmlFor="name">Name<span> *</span></label>
                   <input
+                    className={errors?.name?.message ? "invalid-field" : ""}
                     type="text"
                     name="name"
-                    placeholder="name"
+                    placeholder="Name"
                     defaultValue={name}
                     onChange={e => setName(e.target.value)}
                     {...register('name')}
@@ -76,11 +71,12 @@ const FormModal = (props) => {
                   <span>{errors?.name?.message}</span>
                 </div>
                 <div className="form-group">
-                  <label htmlFor="imageUrl">Image url<span> *</span></label>
+                  <label htmlFor="imageUrl">Image URL</label>
                   <input
+                    className={errors?.imageUrl?.message ? "invalid-field" : ""}
                     type="text"
                     name="imageUrl"
-                    placeholder="imageUrl"
+                    placeholder="Image URL"
                     defaultValue={imageUrl}
                     onChange={e => setImageUrl(e.target.value)}
                     {...register('imageUrl')}

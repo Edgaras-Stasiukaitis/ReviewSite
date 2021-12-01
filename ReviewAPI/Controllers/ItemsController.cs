@@ -46,7 +46,7 @@ namespace ReviewAPI.Controllers
             var model = JsonConvert.DeserializeObject<Item>(data.GetRawText());
             var category = await _context.Categories.FindAsync(categoryId);
             if (category == null) return NotFound(new { message = $"Could not add item. Category by id {categoryId} not found." });
-            if (model.Name == null) return BadRequest(new { message = "Item name is required." });
+            if (model?.Name == null) return BadRequest(new { message = "Item name is required." });
             var item = new Item
             {
                 Name = model.Name,
@@ -68,7 +68,7 @@ namespace ReviewAPI.Controllers
             if (category == null) return NotFound(new { message = $"Could not update item. Category by id {categoryId} not found." });
             var item = category.Items.FirstOrDefault(x => x.Id == itemId);
             if (item == null) return NotFound(new { message = $"Could not update item. Item by id {itemId} not found." });
-            if (model.Name == null) return BadRequest(new { message = "Item name is required." });
+            if (model?.Name == null) return BadRequest(new { message = "Item name is required." });
             item.Name = model.Name;
             item.Description = model.Description;
             item.ImageURL = model.ImageURL;

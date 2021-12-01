@@ -15,7 +15,6 @@ using Newtonsoft.Json;
 using ReviewAPI.Controllers;
 using ReviewAPI.Models;
 using System;
-using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -59,7 +58,7 @@ namespace ReviewAPI
 
             services.AddCors();
 
-            var key = Encoding.UTF8.GetBytes(Configuration["ApplicationSettings:JWT_Secret"].ToString());
+            var key = Encoding.UTF8.GetBytes(Configuration["ApplicationSettings:JWT_Secret"]);
             var tokenValidationParams = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,

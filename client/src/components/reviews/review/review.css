@@ -1,22 +1,18 @@
-.writer {
-    font-weight: bold;
-}
-
-.creation-date {
-    text-align: right;
-    color: gray
-}
-
-.one-line{
-    display: flex;
-    justify-content: space-between;
-}
-
-.btn-space{
+.btn-space {
     margin-bottom: 10px;
 }
 
-.button-group{
+.button-group {
     display: flex;
     justify-content: flex-end;
+}
+
+.full-justify {
+    text-align: justify;
+}
+
+.full-justify:after {
+    content: "";
+    display: inline-block;
+    width: 100%;
 }

@@ -18,10 +18,10 @@ const Register = () => {
     const onSubmit = async (data) => {
         const result = await registration(data.username, data.password, data.email, data.firstname, data.lastname);
         if (result.ok) {
-            toast.success("User successfully registered!")
+            toast.success("User registered!")
             navigate('/login');
         } else
-            toast.error("Error");
+            toast.error("Username already exists!");
     }
 
     return (
@@ -35,27 +35,27 @@ const Register = () => {
                     <div className="form">
                         <div className="form-group">
                             <label htmlFor="username">Username<span> *</span></label>
-                            <input type="text" name="username" placeholder="username" {...register('username')} />
+                            <input className={errors?.username?.message ? "invalid-field" : ""} type="text" name="username" placeholder="username" {...register('username')} />
                             <span>{errors?.username?.message}</span>
                         </div>
                         <div className="form-group">
                             <label htmlFor="email">Email<span> *</span></label>
-                            <input type="email" name="email" placeholder="email" {...register('email')} />
+                            <input className={errors?.email?.message ? "invalid-field" : ""} type="email" name="email" placeholder="email" {...register('email')} />
                             <span>{errors?.email?.message}</span>
                         </div>
                         <div className="form-group">
                             <label htmlFor="firstname">First name<span> *</span></label>
-                            <input type="text" name="firstname" placeholder="first name" {...register('firstname')} />
+                            <input className={errors?.firstname?.message ? "invalid-field" : ""} type="text" name="firstname" placeholder="first name" {...register('firstname')} />
                             <span>{errors?.firstname?.message}</span>
                         </div>
                         <div className="form-group">
                             <label htmlFor="lastname">Last name<span> *</span></label>
-                            <input type="text" name="lastname" placeholder="last name" {...register('lastname')} />
+                            <input className={errors?.lastname?.message ? "invalid-field" : ""} type="text" name="lastname" placeholder="last name" {...register('lastname')} />
                             <span>{errors?.lastname?.message}</span>
                         </div>
                         <div className="form-group">
                             <label htmlFor="password">Password<span> *</span></label>
-                            <input type="password" name="password" placeholder="password" {...register('password')} />
+                            <input className={errors?.password?.message ? "invalid-field" : ""} type="password" name="password" placeholder="password" {...register('password')} />
                             <span>{errors?.password?.message}</span>
                         </div>
                     </div>

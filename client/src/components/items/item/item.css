@@ -1,0 +1,19 @@
+.fixed-item-image {
+    padding-top: 20px;
+    height: 100px;
+    object-fit: contain;
+}
+
+.admin-buttons {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.zoom-item {
+    transition: transform 0.2s;
+}
+
+.zoom-item:hover {
+    transform: scale(1.05);
+}

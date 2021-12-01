@@ -1,0 +1,14 @@
+.card-item {
+    width: 97%;
+    font-family: sans-serif;
+    display: flex;
+    align-self: center;
+}
+
+.card-item-italic {
+    font-style: italic;
+}
+
+.rec-carousel-item {
+    align-self: center;
+}

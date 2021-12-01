@@ -19,7 +19,6 @@ namespace ReviewAPI.Models
         [Required, Column(TypeName = "tinyint")]
         public ReactionState ReactionState { get; set; } = ReactionState.NoReaction;
 
-        [JsonIgnore]
         public virtual User User { get; set; }
 
         [JsonIgnore]

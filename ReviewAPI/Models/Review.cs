@@ -28,7 +28,6 @@ namespace ReviewAPI.Models
 
         public virtual User User { get; set; }
 
-        [JsonIgnore]
         public virtual Item Item { get; set; }
 
         public virtual ICollection<Reaction> Reactions { get; set; }

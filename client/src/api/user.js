@@ -1,5 +1,28 @@
 import { apiUrl } from '../utilities/constants';
 
+export const getUsers = async (token, id='') => {
+    const result = await fetch(`${apiUrl}/Users/${id}`,
+    {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    return result;
+}
+
+export const getReviews = async (id) => {
+    const result = await fetch(`${apiUrl}/Users/${id}/Reviews`,
+    {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    return result;
+}
+
 export const login = async (username, password) => {
     const user = { 
         UserName: username, 
@@ -59,6 +82,18 @@ export const refreshToken = async (params) => {
         body: JSON.stringify(token),
         headers: {
             'Content-Type': 'application/json'
+        }
+    });
+    return result;
+}
+
+export const deleteUser = async (params) => {
+    const result = await fetch(`${apiUrl}/Users/${params.userId}`,
+    {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${params.token}`
         }
     });
     return result;

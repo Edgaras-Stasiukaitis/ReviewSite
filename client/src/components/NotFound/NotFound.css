@@ -5,13 +5,13 @@
     align-items: center;
 }
 
-.nav-link{
+.not-found-link{
   margin:auto;
   text-decoration: none;
   width: 50%;
 }
 
-img{
+.not-found-img{
   width: 50%;
   margin-bottom: 1em;
 }

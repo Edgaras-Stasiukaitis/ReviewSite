@@ -42,7 +42,7 @@ namespace ReviewAPI.Controllers
         public async Task<IActionResult> AddCategory(JsonElement data)
         {
             var model = JsonConvert.DeserializeObject<Category>(data.GetRawText());
-            if (model.Name == null) return BadRequest(new { message = "Category name is required." });
+            if (model?.Name == null) return BadRequest(new { message = "Category name is required." });
             var category = new Category
             {
                 Name = model.Name,
@@ -60,7 +60,7 @@ namespace ReviewAPI.Controllers
             var model = JsonConvert.DeserializeObject<Category>(data.GetRawText());
             var category = await _context.Categories.FindAsync(id);
             if (category == null) return NotFound(new { message = $"Could not update category. Category by id {id} not found." });
-            if (model.Name == null) return BadRequest(new { message = "Category name is required." });
+            if (model?.Name == null) return BadRequest(new { message = "Category name is required." });
             category.Name = model.Name;
             category.ImageURL = model.ImageURL;
             _context.Categories.Update(category);

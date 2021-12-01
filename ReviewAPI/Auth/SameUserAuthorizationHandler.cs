@@ -10,7 +10,7 @@ namespace ReviewAPI
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, SameUserRequirement requirement, IUserOwnedResource resource)
         {
-            if (context.User.IsInRole("Admin") || context.User.FindFirst(CustomClaims.UserId).Value == resource.User.Id)
+            if (context.User.IsInRole("Admin") || context.User.FindFirst(CustomClaims.UserId)?.Value == resource.User.Id)
                 context.Succeed(requirement);
             return Task.CompletedTask;
         }

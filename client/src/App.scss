@@ -1,0 +1,73 @@
+.shadow {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.top {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 15px 15px 20px 15px;
+  background-color: rgb(255, 255, 255);
+
+  label {
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  img {
+    height: 150px;
+    object-fit: cover;
+  }
+}
+
+.breadcrumb-bar {
+  position: absolute;
+  align-self: flex-start;
+  font-size: 17px;
+  color: rgb(9, 156, 224);
+}
+
+.page-container {
+  background-color: rgb(245, 245, 239);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content-wrap {
+  flex: 1;
+}
+
+.thumbs {
+  color: rgb(175, 175, 175);
+}
+
+.thumbs-active {
+  color: Dodgerblue;
+}
+
+.vote-count {
+  font-size: 17px;
+  padding: 0px 2px 0px 2px;
+}
+
+.writer {
+    font-weight: bold;
+}
+
+.creation-date {
+    text-align: right;
+    color: gray;
+}
+
+.one-line {
+    display: flex;
+    justify-content: space-between;
+}
+
+@media only screen and (max-width: 1200px) {
+  .breadcrumb-bar {
+    position: relative;
+  }
+}

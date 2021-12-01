@@ -38,12 +38,12 @@ const Login = () => {
                     <div className="form">
                         <div className="form-group">
                             <label htmlFor="username">Username<span> *</span></label>
-                            <input type="text" name="username" placeholder="username" {...register('username')} />
+                            <input className={errors?.username?.message ? "invalid-field" : ""} type="text" name="username" placeholder="username" {...register('username')} />
                             <span>{errors?.username?.message}</span>
                         </div>
                         <div className="form-group">
                             <label htmlFor="password">Password<span> *</span></label>
-                            <input type="password" name="password" placeholder="password" {...register('password')} />
+                            <input className={errors?.password?.message ? "invalid-field" : ""} type="password" name="password" placeholder="password" {...register('password')} />
                             <span>{errors?.password?.message}</span>
                         </div>
                     </div>

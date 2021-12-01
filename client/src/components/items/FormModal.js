@@ -4,13 +4,16 @@ import { categorySchema } from "../../utilities/schemas";
 import { useForm } from "react-hook-form";
 import { addItem, updateItem } from "../../api/item";
 import { toast } from "react-toastify";
-import '../auth/style.scss';
 import { useSelector } from "react-redux";
 import { useState } from "react";
 import { refreshTokenAction } from "../../redux/actions/userActions";
 import { useDispatch } from "react-redux";
+import { useNavigate, useLocation } from "react-router-dom";
+import "../../utilities/FormModal.scss";
 
 const FormModal = (props) => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [name, setName] = useState(props?.item?.name != null ? props.item.name : '');
   const [description, setDescription] = useState(props?.item?.description != null ? props.item.description : '');
@@ -32,46 +35,39 @@ const FormModal = (props) => {
       token: newToken == null ? user.token : newToken.token
     }
 
-    if (props.edit) {
-      const result = await updateItem(payload);
-      if (result.ok) {
-        toast.success("Successfully updated!");
-        window.location.reload();
-      }
-      else toast.error("Invalid data provided.");
-    } else {
-      const result = await addItem(payload);
-      if (result.ok) {
-        toast.success("Successfully added!");
-        window.location.reload();
-      }
-      else toast.error("Invalid data provided.");
+    const result = props.edit ? await updateItem(payload) : await addItem(payload);
+    if (result.ok) {
+      toast.success(props.edit ? "Item updated!" : "Item added!");
+      navigate('/');
+      navigate('/items', { state: location.state });
     }
+    else toast.error("Invalid data provided.");
   }
 
   return (
     <Modal
       {...props}
-      size="lg"
+      size="md"
       aria-labelledby="contained-modal-title-vcenter"
       centered
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          Edit category
+          Edit item
         </Modal.Title>
       </Modal.Header>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Modal.Body>
-          <div className="base-container">
+          <div className="base-form">
             <div className="content">
               <div className="form">
                 <div className="form-group">
                   <label htmlFor="name">Name<span> *</span></label>
                   <input
+                    className={errors?.name?.message ? "invalid-field" : ""}
                     type="text"
                     name="name"
-                    placeholder="name"
+                    placeholder="Name of the item"
                     defaultValue={name}
                     onChange={e => setName(e.target.value)}
                     {...register('name')}
@@ -80,10 +76,11 @@ const FormModal = (props) => {
                 </div>
                 <div className="form-group">
                   <label htmlFor="description">Description</label>
-                  <input
+                  <textarea
+                    className={errors?.description?.message ? "invalid-field" : ""}
                     type="text"
                     name="description"
-                    placeholder="description"
+                    placeholder="Provide item description"
                     defaultValue={description}
                     onChange={e => setDescription(e.target.value)}
                     {...register('description')}
@@ -91,11 +88,12 @@ const FormModal = (props) => {
                   <span>{errors?.description?.message}</span>
                 </div>
                 <div className="form-group">
-                  <label htmlFor="imageUrl">Image url<span> *</span></label>
+                  <label htmlFor="imageUrl">Image url</label>
                   <input
+                    className={errors?.imageUrl?.message ? "invalid-field" : ""}
                     type="text"
                     name="imageUrl"
-                    placeholder="imageUrl"
+                    placeholder="Image URL"
                     defaultValue={imageUrl}
                     onChange={e => setImageUrl(e.target.value)}
                     {...register('imageUrl')}

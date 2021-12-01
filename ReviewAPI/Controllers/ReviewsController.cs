@@ -65,7 +65,7 @@ namespace ReviewAPI.Controllers
             if (category == null) return NotFound(new { message = $"Could not add review. Category by id {categoryId} not found." });
             var item = category.Items.FirstOrDefault(x => x.Id == itemId);
             if (item == null) return NotFound(new { message = $"Could not add review. Item by id {itemId} not found." });
-            if (model.Title is null || model.Title == string.Empty) return BadRequest(new { message = "Review title is required." });
+            if (model?.Title is null || model.Title == string.Empty) return BadRequest(new { message = "Review title is required." });
             if (model.Rating == 0) return BadRequest(new { message = "Review rating is required." });
             var review = new Review
             {
@@ -93,7 +93,7 @@ namespace ReviewAPI.Controllers
             if (category == null) return NotFound(new { message = $"Could not update review. Category by id {categoryId} not found." });
             var item = category.Items.FirstOrDefault(x => x.Id == itemId);
             if (item == null) return NotFound(new { message = $"Could not update review. Item by id {itemId} not found." });
-            if (model.Title is null || model.Title == string.Empty) return BadRequest(new { message = "Review title is required." });
+            if (model.Title is null or "") return BadRequest(new { message = "Review title is required." });
             if (model.Rating == 0) return BadRequest(new { message = "Review rating is required." });
             review.Title = model.Title;
             review.Description = model.Description;

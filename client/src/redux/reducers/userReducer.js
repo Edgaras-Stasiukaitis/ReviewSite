@@ -25,6 +25,6 @@ export default function userReducer(state = { loggedIn: false, token: null, refr
                 data: jwt(action.payload.token)
             }
         default:
-            return state
+            return state;
     }
 }

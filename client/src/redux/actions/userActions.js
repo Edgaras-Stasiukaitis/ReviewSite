@@ -24,6 +24,9 @@ export const refreshTokenAction = (user) => async (dispatch) => {
     localStorage.setItem("user", JSON.stringify(newToken));
     dispatch({ type: userConstants.REFRESH, payload: newToken });
     return newToken;
-  } else dispatch({ type: userConstants.LOGOUT });
+  } else {
+    dispatch({ type: userConstants.LOGOUT })
+    window.location.reload();
+  };
   return null;
 }

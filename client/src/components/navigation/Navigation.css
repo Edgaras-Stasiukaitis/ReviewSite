@@ -1,3 +1,42 @@
-.nav-link{
+.remove-underline {
     text-decoration: none;
 }
+
+.nav-link {
+    text-decoration: none;
+    margin: 0px 5px;
+    opacity: 0.75;
+}
+
+.active {
+    opacity: 1;
+}
+
+.nav-link:hover {
+    opacity: 1;
+}
+
+.nav-link-text {
+    display: inline-block;
+    position: relative;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.nav-link-text::before {
+    transition: 250ms;
+    height: 5px;
+    content: "";
+    position: absolute;
+    background-color: #4a91fc;
+}
+
+.nav-link-text-ltr::before {
+    width: 0%;
+    bottom: -10px;
+}
+
+.nav-link-text-ltr:hover::before {
+    width: 100%;
+}
+  
