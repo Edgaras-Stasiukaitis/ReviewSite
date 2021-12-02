@@ -27,7 +27,7 @@ const FormModal = (props) => {
   const onSubmit = async (data) => {
     const newToken = await dispatch(refreshTokenAction(user));
     const payload = {
-      categoryId: props?.category?.id,
+      categoryId: data.category ?? props?.category?.id,
       itemId: props?.item?.id,
       name: data.name,
       description: data.description,
@@ -39,11 +39,11 @@ const FormModal = (props) => {
     if (result.ok) {
       toast.success(props.edit ? "Item updated!" : "Item added!");
       navigate('/');
-      navigate('/items', { state: location.state });
+      navigate(location.state == null ? '/categories' : '/items', { state: location.state });
     }
     else toast.error("Invalid data provided.");
   }
-
+  
   return (
     <Modal
       {...props}
@@ -53,7 +53,7 @@ const FormModal = (props) => {
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          Edit item
+          {props.edit === 0 ? "Add new item" : "Edit item"}
         </Modal.Title>
       </Modal.Header>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -100,6 +100,19 @@ const FormModal = (props) => {
                   />
                   <span>{errors?.imageUrl?.message}</span>
                 </div>
+                {props?.type === "categories" ? (
+                  <div className="form-group">
+                    <label htmlFor="category">Category</label>
+                    <select
+                      name="category"
+                      {...register('category')}
+                    >
+                      {props.categories && props.categories.map((cat, idx) => (
+                        <option key={idx} value={cat.id}>{cat.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                ) : ''}
               </div>
             </div>
           </div>

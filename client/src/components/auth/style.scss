@@ -1,5 +1,5 @@
 .base-container{
-    width: 400px;
+    width: 425px;
     display: flex;
     margin: auto;
     margin-top: 20px;
@@ -64,7 +64,7 @@
 
                 input{
                     margin-top: 6px;
-                    min-width: 18em;
+                    min-width: 19em;
                     height: 36px;
                     padding: 5px 10px;
                     font-size: 14px;
@@ -102,7 +102,7 @@
 
 @media only screen and (max-width: 768px) {
     .base-container {
-        margin-top: 0px;
+        margin-top: 0;
         width: 100%;
     }
 }

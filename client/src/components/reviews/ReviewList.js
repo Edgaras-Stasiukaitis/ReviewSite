@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector } from "react-redux";
-import { Container, Row, Col, Button, Breadcrumb } from 'react-bootstrap';
+import { Container, Row, Col, Button, Breadcrumb, Alert } from 'react-bootstrap';
 import { getReviews } from '../../api/review';
 import Review from './review/Review';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
@@ -15,19 +15,18 @@ const ReviewList = () => {
     const navigate = useNavigate();
     const user = useSelector(state => state.user);
 
-    useEffect(() => { 
+    useEffect(() => {
         getReviews(location.state?.category?.id, location.state?.item?.id).then(response => response.json()).then(data => {
             data && setReviews(data)
         })
     }, [location.state, navigate])
 
     useEffect(() => {
-      window.addEventListener("resize", () => setWidth(window.innerWidth));
-      return () => window.removeEventListener("resize", () => setWidth(window.innerWidth)) 
+        window.addEventListener("resize", () => setWidth(window.innerWidth));
+        return () => window.removeEventListener("resize", () => setWidth(window.innerWidth))
     }, []);
 
-    if (location.state == null) return <Navigate to='/'/>;
-
+    if (location.state == null) return <Navigate to='/' />;
     return (
         <div>
             <div className="top shadow">
@@ -48,24 +47,33 @@ const ReviewList = () => {
                     numberOfStars={5}
                 />
             </div>
-            <Container className={width >= 768 ? "mt-4 w-50" : "mt-4 w-100"}>
-                {user.loggedIn ? (
-                    <div className="d-flex justify-content-start">
-                        <Button variant="primary" onClick={() => navigate('/reviews/form', { state: location.state })}>
-                            <i className="fas fa-pen"></i> Write review
-                        </Button>
-                    </div>
-                ) : ''}
-                <Row className="mt-1 g-4">
-                    {reviews && reviews.map((rev, _) => (
-                        <div key={rev.review.id}>
-                            <Col>
-                                <Review {...location.state} {...rev} ></Review>
-                            </Col>
+            {reviews && reviews.length === 0 ? (
+                <Container className={width >= 768 ? "mt-5 w-50" : "mt-4 w-100"}>
+                    <Alert variant="info">
+                        There are no reviews yet! Be the first one to <Button variant="primary" size="sm" onClick={() => user.loggedIn ? navigate('/reviews/form', { state: location.state }) : navigate('/login')}>
+                            <i className="fas fa-pen"></i> review</Button> this item!
+                    </Alert>
+                </Container>
+            ) : (
+                <Container className={width >= 768 ? "mt-4 w-50" : "mt-4 w-100"}>
+                    {user.loggedIn ? (
+                        <div className="d-flex justify-content-start">
+                            <Button variant="primary" onClick={() => navigate('/reviews/form', { state: location.state })}>
+                                <i className="fas fa-pen"></i> Write review
+                            </Button>
                         </div>
-                    ))}
-                </Row>
-            </Container>
+                    ) : ''}
+                    <Row className="mt-1 g-4">
+                        {reviews && reviews.map((rev, _) => (
+                            <div key={rev.review.id}>
+                                <Col>
+                                    <Review {...location.state} {...rev} ></Review>
+                                </Col>
+                            </div>
+                        ))}
+                    </Row>
+                </Container>
+            )}
         </div>
     )
 }

@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
 import './Navigation.css'
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Navbar, Container, Nav, Badge } from 'react-bootstrap';
 import { logoutAction } from '../../redux/actions/userActions';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../api/user';
 import { loginAction, refreshTokenAction } from '../../redux/actions/userActions';
+import { DropdownMenu, MenuItem } from 'react-bootstrap-dropdown-menu';
 
 const Navigation = () => {
     const [expanded, setExpanded] = useState(false);
@@ -61,6 +62,13 @@ const Navigation = () => {
                     <Nav>
                         {user.loggedIn ? (
                             <div>
+                                <DropdownMenu userName="Chris Smith" iconColor='#00FF00'>
+                                    <MenuItem text="Home" location="/home" />
+                                    <MenuItem text="Edit Profile" location="/profile" />
+                                    <MenuItem text="Change Password" location="/change-password" />
+                                    <MenuItem text="Privacy Settings" location="/privacy-settings" />
+                                    <MenuItem text="Logout" />
+                                </DropdownMenu>
                                 <Navbar.Text className="remove-underline d-inline p-2 text-white">
                                     <Badge bg={user.data.role === "Admin" ? "primary" : "secondary"}>{user.data.role}</Badge> <b>{user.data.UserName}</b>
                                 </Navbar.Text>

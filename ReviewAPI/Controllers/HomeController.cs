@@ -28,6 +28,7 @@ namespace ReviewAPI.Controllers
             {
                 Review = _mapper.Map<ReviewDto>(r),
                 Item = _mapper.Map<ItemDto>(r.Item),
+                Category = _mapper.Map<CategoryDto>(r.Item.Category),
                 User = _mapper.Map<UserDto>(r.User),
                 r.Reactions
             })
@@ -43,6 +44,7 @@ namespace ReviewAPI.Controllers
             {
                 Review = _mapper.Map<ReviewDto>(r),
                 Item = _mapper.Map<ItemDto>(r.Item),
+                Category = _mapper.Map<CategoryDto>(r.Item.Category),
                 User = _mapper.Map<UserDto>(r.User),
                 r.Reactions
             })

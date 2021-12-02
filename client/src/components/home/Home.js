@@ -28,18 +28,18 @@ const Home = () => {
     }, [])
 
     return (
-        <div>
-            <Container className="mt-5">
+        <div>    
+            <Container className="mt-5 landing-page-background">
                 <center>
-                    <h1>Express your mind!</h1>
-                    <img src={reviewImage} alt="LandingLogo" />
+                    <label className="landing-page-label">Express your mind!</label>
+                    <img className="landing-page-image" src={reviewImage} alt="LandingLogo" />
                 </center>
                 <NavLink className="remove-underline center" to="/Categories" >
-                    <button type="button" className="mt-5 btn btn-primary btn-lg w-50">Begin by exploring the categories!</button>
+                    <button type="button" className="mt-5 btn btn-primary btn-lg explore-button">Begin by exploring the categories!</button>
                 </NavLink>
             </Container>
             <div className="mt-5 top shadow">
-                <label>Popular user reviews</label>
+                <label><i className="far fa-star"></i> Popular user reviews</label>
             </div>
             <Container className="mt-3">
                 <Carousel breakPoints={breakPoints}>
@@ -49,7 +49,7 @@ const Home = () => {
                 </Carousel>
             </Container>
             <div className="mt-5 top shadow">
-                <label>Recent user reviews</label>
+                <label><i className="far fa-clock"></i> Recent user reviews</label>
             </div>
             <Container className="mt-3">
                 <Carousel breakPoints={breakPoints}>

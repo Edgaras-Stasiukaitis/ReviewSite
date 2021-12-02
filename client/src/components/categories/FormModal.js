@@ -49,7 +49,7 @@ const FormModal = (props) => {
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          Edit category
+          {props.edit === 0 ? "Add new category" : "Edit category"}
         </Modal.Title>
       </Modal.Header>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -63,7 +63,7 @@ const FormModal = (props) => {
                     className={errors?.name?.message ? "invalid-field" : ""}
                     type="text"
                     name="name"
-                    placeholder="Name"
+                    placeholder="Name of the category"
                     defaultValue={name}
                     onChange={e => setName(e.target.value)}
                     {...register('name')}

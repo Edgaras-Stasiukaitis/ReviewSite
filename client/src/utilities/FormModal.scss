@@ -1,4 +1,4 @@
-.base-form{
+.base-form {
     width: 400px;
     display: flex;
     margin: auto;
@@ -7,45 +7,45 @@
     align-items: center;
     background-color: rgb(255, 255, 255);
 
-    .content{
+    .content {
         display: flex;
         flex-direction: column;
 
-        .form{
+        .form {
             margin-top: 1em;
             display: flex;
             flex-direction: column;
             align-items: center;
 
-            .form-group{
+            .form-group {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
                 width: fit-content;
-                label{
+                label {
                     font-size: 16px;
                 }
-                span{
+                span {
                     font-size: 12px;
                     margin-bottom: 10px;
                     color: rgb(182, 21, 21);
-                    font-weight:bold;
-                    animation:blink 2.5s linear infinite alternate 2.5s;
+                    font-weight: bold;
+                    animation: blink 2.5s linear infinite alternate 2.5s;
 
                     @keyframes blink {
                         80% {
-                          color:rgb(182, 21, 21);
+                            color: rgb(182, 21, 21);
                         }
                         90% {
-                          color:red;
+                            color: red;
                         }
                         100% {
-                          color:rgb(182, 21, 21);
+                            color: rgb(182, 21, 21);
                         }
-                      }
+                    }
                 }
 
-                input{
+                input {
                     margin-top: 6px;
                     min-width: 30em;
                     height: 36px;
@@ -56,7 +56,7 @@
                     border-radius: 4px;
                     margin-bottom: 8px;
                     transition: all 250ms ease-in-out;
-                    &:focus{
+                    &:focus {
                         outline: none;
                         box-shadow: 0px 0px 12px 0.8px #0e81ce96;
                     }
@@ -80,10 +80,27 @@
                     }
                 }
 
+                select {
+                    margin-top: 6px;
+                    min-width: 30em;
+                    height: 36px;
+                    padding: 0px 10px;
+                    font-size: 14px;
+                    background-color: #f3f3f3;
+                    border: 0;
+                    border-radius: 4px;
+                    margin-bottom: 8px;
+                    transition: all 250ms ease-in-out;
+                    &:focus {
+                        outline: none;
+                        box-shadow: 0px 0px 12px 0.8px #0e81ce96;
+                    }
+                }
+
                 .invalid-field {
                     outline: none;
                     box-shadow: 0px 0px 12px 0.8px #dd0d0d8a;
-                    &:focus{
+                    &:focus {
                         outline: none;
                         box-shadow: 0px 0px 12px 0.8px #dd0d0d8a;
                     }
@@ -94,8 +111,25 @@
 }
 
 @media only screen and (max-width: 768px) {
-    .base-container {
-        margin-top: 0px;
+    .base-form {
         width: 100%;
+        .content {
+            .form {
+                .form-group {
+                    input {
+                        min-width: 19em;
+                        height: 36px;
+                    }
+
+                    textarea {
+                        min-width: 19em;
+                    }
+
+                    select {
+                        min-width: 19em;
+                    }
+                }
+            }
+        }
     }
 }

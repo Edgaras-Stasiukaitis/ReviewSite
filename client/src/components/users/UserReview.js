@@ -9,6 +9,7 @@ import { getReactions, addReaction, updateReaction, deleteReaction } from "../..
 import { useEffect, useState } from "react";
 import { timeSince } from "../../utilities/calculators";
 import { useNavigate } from "react-router-dom";
+import { NavLink } from 'react-router-dom';
 import "../reviews/review/review.css";
 
 const UserReview = (props) => {
@@ -60,7 +61,11 @@ const UserReview = (props) => {
         <Card className="shadow">
             <Card.Body>
                 <div className="one-line">
-                    <Card.Text><b>You</b> reviewed <b>"{props.item.name}"</b></Card.Text>
+                    <Card.Text>
+                        <b>You</b> reviewed <b><NavLink className="remove-underline" to="/reviews" state={{ ...props }} >{props.item.name}</NavLink></b> in <b>
+                            <NavLink className="remove-underline" to="/items" state={{ ...props.category }} >{props.category.name}</NavLink>
+                        </b>
+                    </Card.Text>
                     <div className="button-group">
                         <Dropdown>
                             <Dropdown.Toggle variant="secondary" size="sm" id="dropdown-basic">
