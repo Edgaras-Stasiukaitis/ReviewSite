@@ -12,23 +12,25 @@ const Home = () => {
     const [popularReviews, setPopularReviews] = useState();
     const homePageReviewCount = 9;
     const breakPoints = [
-        { width: 500, itemsToShow: 1},
-        { width: 768, itemsToShow: 2},
-        { width: 1200, itemsToShow: 3},
-        { width: 1500, itemsToShow: 4}
+        { width: 500, itemsToShow: 1 },
+        { width: 768, itemsToShow: 2 },
+        { width: 1200, itemsToShow: 3 },
+        { width: 1500, itemsToShow: 4 }
     ];
 
     useEffect(() => {
+        let isMounted = true;
         getRecentReviews(homePageReviewCount).then(response => response.json()).then(data => {
-            data && setRecentReviews(data)
+            if (isMounted && data) setRecentReviews(data)
         })
         getPopularReviews(homePageReviewCount).then(response => response.json()).then(data => {
-            data && setPopularReviews(data)
+            if (isMounted && data) setPopularReviews(data)
         })
+        return () => { isMounted = false };
     }, [])
 
     return (
-        <div>    
+        <div>
             <Container className="mt-5 landing-page-background">
                 <center>
                     <label className="landing-page-label">Express your mind!</label>
@@ -38,26 +40,34 @@ const Home = () => {
                     <button type="button" className="mt-5 btn btn-primary btn-lg explore-button">Begin by exploring the categories!</button>
                 </NavLink>
             </Container>
-            <div className="mt-5 top shadow">
-                <label><i className="far fa-star"></i> Popular user reviews</label>
-            </div>
-            <Container className="mt-3">
-                <Carousel breakPoints={breakPoints}>
-                    {popularReviews && popularReviews.map((r, _) => (
-                        <DisplayedReview {...r}></DisplayedReview>
-                    ))}
-                </Carousel>
-            </Container>
-            <div className="mt-5 top shadow">
-                <label><i className="far fa-clock"></i> Recent user reviews</label>
-            </div>
-            <Container className="mt-3">
-                <Carousel breakPoints={breakPoints}>
-                    {recentReviews && recentReviews.map(((r, _) => (
-                        <DisplayedReview className="card" {...r}></DisplayedReview>
-                    )))}
-                </Carousel>
-            </Container>
+            {popularReviews != null ? (
+                <div>
+                    <div className="mt-5 top">
+                        <label><i className="far fa-star"></i> Popular user reviews</label>
+                    </div>
+                    <Container className="mt-3">
+                        <Carousel breakPoints={breakPoints}>
+                            {popularReviews && popularReviews.map((r, idx) => (
+                                <DisplayedReview key={idx} {...r}></DisplayedReview>
+                            ))}
+                        </Carousel>
+                    </Container>
+                </div>
+            ) : ''}
+            {recentReviews != null ? (
+                <div>
+                    <div className="mt-5 top">
+                        <label><i className="far fa-clock"></i> Recent user reviews</label>
+                    </div>
+                    <Container className="mt-3">
+                        <Carousel breakPoints={breakPoints}>
+                            {recentReviews && recentReviews.map(((r, idx) => (
+                                <DisplayedReview className="card" key={idx} {...r}></DisplayedReview>
+                            )))}
+                        </Carousel>
+                    </Container>
+                </div>
+            ) : ''}
         </div>
     )
 }

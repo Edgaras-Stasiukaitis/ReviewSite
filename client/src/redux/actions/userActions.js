@@ -9,6 +9,7 @@ export const loginAction = (token) => (dispatch) => {
 export const logoutAction = () => (dispatch) => {
   localStorage.removeItem("user");
   dispatch({ type: userConstants.LOGOUT });
+  window.location.reload();
 };
 
 export const refreshTokenAction = (user) => async (dispatch) => {

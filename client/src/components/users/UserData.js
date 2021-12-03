@@ -6,7 +6,7 @@ const UserData = (props) => {
     const [deleteModalShow, setDeleteModalShow] = useState(false);
     
     return (
-        <tr key={props.id}>
+        <tr>
             <td>{props.id + 1}</td>
             <td><Badge bg={props.user.role === "Admin" ? "primary" : "secondary"}>{props.user.role}</Badge></td>
             <td>{props.user.firstName}</td>

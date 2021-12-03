@@ -31,7 +31,7 @@ const UserReview = (props) => {
 
     useEffect(() => {
         if (reactions != null) {
-            const reactionCounts = reactions && reactions.reduce((cnt, cur) => (cnt[cur.reactionState] = cnt[cur.reactionState] + 1 || 1, cnt), {});
+            const reactionCounts = reactions && reactions.reduce((cnt, cur) => { cnt[cur.reactionState] = cnt[cur.reactionState] + 1 || 1; return cnt }, {});
             setUpvoteCount(reactionCounts[1] == null ? 0 : reactionCounts[1]);
             setDownvoteCount(reactionCounts[2] == null ? 0 : reactionCounts[2]);
         }

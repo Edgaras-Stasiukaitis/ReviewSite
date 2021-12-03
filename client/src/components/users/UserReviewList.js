@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector } from "react-redux";
-import { Container, Row, Col, Breadcrumb } from 'react-bootstrap';
+import { Container, Row, Col, Breadcrumb, Alert, Button } from 'react-bootstrap';
 import { getReviews } from '../../api/user';
 import { useNavigate } from 'react-router-dom';
 import UserReview from './UserReview';
@@ -33,19 +33,28 @@ const UserReviewList = () => {
                     <Breadcrumb.Item onClick={() => navigate('/')}><i className="fas fa-home"></i></Breadcrumb.Item>
                     <Breadcrumb.Item active>Reviews</Breadcrumb.Item>
                 </Breadcrumb>
-                <label><i className="fas fa-binoculars"></i> My reviews</label>
+                <label><i className="fas fa-star"></i> My reviews</label>
             </div>
-            <Container className={width >= 850 ? "mt-4 w-50" : "mt-4 w-100"}>
-                <Row className="mt-1 g-4">
-                    {reviews && reviews.map((rev, _) => (
-                        <div key={rev.review?.id}>
-                            <Col>
-                                <UserReview {...rev}></UserReview>
-                            </Col>
-                        </div>
-                    ))}
-                </Row>
-            </Container>
+            {reviews && reviews.length === 0 ? (
+                <Container className={width >= 850 ? "mt-5 w-50" : "mt-4 w-100"}>
+                    <Alert variant="info">
+                        You haven't written a single review yet! Find the item to review by <Button variant="primary" size="sm" onClick={() => navigate('/categories')}>
+                            <i className="fas fa-layer-group"></i> exploring</Button> the categories!
+                    </Alert>
+                </Container>
+            ) : (
+                <Container className={width >= 850 ? "mt-4 w-50" : "mt-4 w-100"}>
+                    <Row className="mt-1 g-4">
+                        {reviews && reviews.map((rev, _) => (
+                            <div key={rev.review?.id}>
+                                <Col>
+                                    <UserReview {...rev}></UserReview>
+                                </Col>
+                            </div>
+                        ))}
+                    </Row>
+                </Container>
+            )}
         </div>
     )
 }

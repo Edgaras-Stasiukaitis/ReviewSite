@@ -9,7 +9,7 @@ import { Provider } from 'react-redux';
 
 const store = createStore(combinedReducer, applyMiddleware(thunk));
 
-//console.log = console.warn = console.error = () => {};
+console.warn = console.error = () => {};
 
 ReactDOM.render(
   <React.StrictMode>

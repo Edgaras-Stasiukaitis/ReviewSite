@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Container, Row, Col, Button, Breadcrumb } from 'react-bootstrap';
 import { getItems } from '../../api/item';
 import Item from './item/Item';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import FormModal from './FormModal';
 
@@ -14,14 +14,13 @@ const ItemList = () => {
     const user = useSelector(state => state.user);
 
     useEffect(() => {
-        if (location.state === null) {
-            navigate('/categories');
-            return null;
-        }
+        if (location.state == null) return <Navigate to='/' />;
         getItems(location.state.id).then(response => response.json()).then(data => {
             data && setItems(data)
         })
     }, [location.state, navigate])
+
+    if (location.state == null) return <Navigate to='/' />;
 
     return (
         <div>

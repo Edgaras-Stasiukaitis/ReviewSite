@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Table, Row, Breadcrumb } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { getUsers } from '../../api/user';
 import { useSelector, useDispatch } from 'react-redux';
 import { refreshTokenAction } from '../../redux/actions/userActions';
@@ -13,10 +13,7 @@ const UserList = () => {
     const currentUser = useSelector(state => state.user);
     
     useEffect(() => {
-        if (!currentUser.loggedIn && currentUser.data?.role !== "Admin") {
-            navigate('/');
-            return null;
-        }
+        if (!currentUser.loggedIn || currentUser.data?.role !== "Admin") return <Navigate to='/' />;
         const fetchData = async () => {
             const newToken = await dispatch(refreshTokenAction(currentUser));
             getUsers(newToken == null ? currentUser.token : newToken.token).then(response => response.json()).then(data => {
@@ -25,6 +22,8 @@ const UserList = () => {
         }
         fetchData();
     }, [dispatch, navigate, currentUser])
+
+    if (!currentUser.loggedIn || currentUser.data?.role !== "Admin") return <Navigate to='/' />;
 
     return (
         <div>
@@ -51,7 +50,7 @@ const UserList = () => {
                         </thead>
                         <tbody>
                             {users && users.map((user, idx) => (
-                                <UserData id={idx} user={user} currentUser={currentUser} />
+                                <UserData key={idx} id={idx} user={user} currentUser={currentUser} />
                             ))}
                         </tbody>
                     </Table>

@@ -119,7 +119,7 @@ const FormModal = (props) => {
         </Modal.Body>
         <Modal.Footer>
           <button type="submit" className="btn btn-success" onClick={props.changed} >Confirm</button>
-          <Button onClick={props.onHide}>Close</Button>
+          <Button variant="secondary" onClick={props.onHide}>Close</Button>
         </Modal.Footer>
       </form>
     </Modal>

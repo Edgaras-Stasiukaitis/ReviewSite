@@ -16,6 +16,7 @@ const ReviewList = () => {
     const user = useSelector(state => state.user);
 
     useEffect(() => {
+        if (location.state == null) return <Navigate to='/' />;
         getReviews(location.state?.category?.id, location.state?.item?.id).then(response => response.json()).then(data => {
             data && setReviews(data)
         })
@@ -27,6 +28,7 @@ const ReviewList = () => {
     }, []);
 
     if (location.state == null) return <Navigate to='/' />;
+
     return (
         <div>
             <div className="top shadow">
@@ -58,8 +60,8 @@ const ReviewList = () => {
                 <Container className={width >= 768 ? "mt-4 w-50" : "mt-4 w-100"}>
                     {user.loggedIn ? (
                         <div className="d-flex justify-content-start">
-                            <Button variant="primary" onClick={() => navigate('/reviews/form', { state: location.state })}>
-                                <i className="fas fa-pen"></i> Write review
+                            <Button variant="primary" onClick={() => navigate('/reviews/form', { state: {from: '/reviews', ...location.state} })}>
+                                <i className="fas fa-pen"></i> Write a review
                             </Button>
                         </div>
                     ) : ''}

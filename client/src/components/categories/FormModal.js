@@ -88,8 +88,8 @@ const FormModal = (props) => {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <button type="submit" className="btn btn-success" onClick={props.changed} >Confirm</button>
-          <Button onClick={props.onHide}>Close</Button>
+          <button type="submit" className="btn btn-success" onClick={props.changed}>Confirm</button>
+          <Button variant="secondary" onClick={props.onHide}>Close</Button>
         </Modal.Footer>
       </form>
     </Modal>

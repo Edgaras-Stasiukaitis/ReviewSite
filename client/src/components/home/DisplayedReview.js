@@ -11,7 +11,7 @@ const DisplayedReview = (props) => {
     const [downvoteCount, setDownvoteCount] = useState(0);
 
     useEffect(() => {
-        const reactionCounts = props.reactions && props.reactions.reduce((cnt, cur) => (cnt[cur.reactionState] = cnt[cur.reactionState] + 1 || 1, cnt), {});
+        const reactionCounts = props.reactions && props.reactions.reduce((cnt, cur) => { cnt[cur.reactionState] = cnt[cur.reactionState] + 1 || 1; return cnt }, {});
         setUpvoteCount(reactionCounts[1] === undefined ? 0 : reactionCounts[1]);
         setDownvoteCount(reactionCounts[2] === undefined ? 0 : reactionCounts[2]);
     }, [props.reactions]);

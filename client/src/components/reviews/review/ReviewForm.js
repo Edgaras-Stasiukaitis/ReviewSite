@@ -46,7 +46,7 @@ const ReviewForm = () => {
         const result = location.state.edit ? await updateReview(payload) : await addReview(payload);
         if (result.ok) {
             toast.success("Review published!");
-            navigate(location.state?.from != null ? location.state.from : "/reviews", { state: location.state });
+            navigate(location.state?.from != null ? location.state.from : "/categories", { state: location.state });
             return null;
         }
         else toast.error("Invalid data provided.");
@@ -104,7 +104,7 @@ const ReviewForm = () => {
                         <span className="error">{errors?.description?.message}</span>
                     </div>
                     <div className="inline-buttons">
-                        <button onClick={() => navigate(location.state?.from != null ? location.state.from : "reviews" , { state: location.state })} type="button" className="btn btn-secondary">Back to reviews</button>
+                        <button onClick={() => navigate(location.state?.from != null ? location.state.from : "/reviews" , { state: location.state })} type="button" className="btn btn-secondary">Back to reviews</button>
                         <button onClick={() => setSubmitted(true)} type="submit" className="btn btn-success">Submit</button>
                     </div>
                 </div>

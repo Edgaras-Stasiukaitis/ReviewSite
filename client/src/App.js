@@ -1,7 +1,8 @@
 import './App.scss';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'react-toastify/dist/ReactToastify.css';
 import './index.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import 'react-toastify/dist/ReactToastify.css';
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import NotFound from './components/notFound/NotFound';
@@ -38,6 +39,7 @@ function App() {
           </Routes>
         </Router>
         <ToastContainer
+          theme="dark"
           position="bottom-right" />
       </div>
       <Footer />

@@ -8,6 +8,10 @@
     opacity: 0.75;
 }
 
+.nav-drop-down-sign-out {
+    color: rgb(204, 65, 65);
+}
+
 .active {
     opacity: 1;
 }
