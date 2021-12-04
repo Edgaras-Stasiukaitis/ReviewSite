@@ -49,7 +49,7 @@ const FormModal = (props) => {
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          {props.edit === 0 ? "Add new category" : "Edit category"}
+          {props.edit === 0 ? "Add a new category" : "Edit category"}
         </Modal.Title>
       </Modal.Header>
       <form onSubmit={handleSubmit(onSubmit)}>

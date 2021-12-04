@@ -48,7 +48,7 @@ const ItemList = () => {
                         />
                     </div>
                 ) : ''}
-                <Row xs={1} md={4} className="mt-3 g-1">
+                <Row xs={1} md={2} lg={3} xxl={4} className="mt-3 g-1">
                     {items && items.map((item, _) => (
                         <div key={item.id}>
                             <Col>

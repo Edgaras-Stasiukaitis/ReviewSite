@@ -62,7 +62,7 @@ const UserReview = (props) => {
             <Card.Body>
                 <div className="one-line">
                     <Card.Text>
-                        <b>You</b> reviewed <b><NavLink className="remove-underline" to="/reviews" state={{ ...props }} >{props.item.name}</NavLink></b> in <b>
+                        <b>You</b> reviewed <b><NavLink className="remove-underline" to="/reviews" state={{ category: props.category, item: props.item }} >{props.item.name}</NavLink></b> in <b>
                             <NavLink className="remove-underline" to="/items" state={{ ...props.category }} >{props.category.name}</NavLink>
                         </b>
                     </Card.Text>
@@ -72,7 +72,7 @@ const UserReview = (props) => {
                                 <i className="fas fa-cog"></i>
                             </Dropdown.Toggle>
                             <Dropdown.Menu>
-                                <Dropdown.Item onClick={() => navigate("/reviews/form", { state: { from: "/user/reviews", edit: 1, ...props } })}><i className="fas fa-edit"></i> Edit</Dropdown.Item>
+                                <Dropdown.Item onClick={() => navigate("/reviews/form", { state: { from: "/user/reviews", edit: 1, category: props.category, item: props.item, review: props.review } })}><i className="fas fa-edit"></i> Edit</Dropdown.Item>
                                 <Dropdown.Item onClick={() => setDeleteModalShow(true)}><i className="fas fa-trash"></i> Delete</Dropdown.Item>
                                 <DeleteModal
                                     show={deleteModalShow}

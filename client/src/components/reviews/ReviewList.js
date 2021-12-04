@@ -38,7 +38,7 @@ const ReviewList = () => {
                     <Breadcrumb.Item onClick={() => navigate('/items', { state: location.state?.category })}>{location.state?.category?.name}</Breadcrumb.Item>
                     <Breadcrumb.Item active>{location?.state?.item?.name}</Breadcrumb.Item>
                 </Breadcrumb>
-                <label>{location?.state?.item?.name} reviews</label>
+                <label>{location?.state?.item?.name} reviews <label className="count">({reviews?.length})</label></label>
                 <p className="description">{location?.state?.item?.description}</p>
                 <StarRatings
                     name="ratings"
@@ -52,7 +52,7 @@ const ReviewList = () => {
             {reviews && reviews.length === 0 ? (
                 <Container className={width >= 768 ? "mt-5 w-50" : "mt-4 w-100"}>
                     <Alert variant="info">
-                        There are no reviews yet! Be the first one to <Button variant="primary" size="sm" onClick={() => user.loggedIn ? navigate('/reviews/form', { state: location.state }) : navigate('/login')}>
+                        There are no reviews yet! Be the first one to <Button variant="primary" size="sm" onClick={() => user.loggedIn ? navigate("/reviews/form", { state: { from: "/reviews", edit: 0, ...location.state } }) : navigate('/login')}>
                             <i className="fas fa-pen"></i> review</Button> this item!
                     </Alert>
                 </Container>
@@ -60,7 +60,7 @@ const ReviewList = () => {
                 <Container className={width >= 768 ? "mt-4 w-50" : "mt-4 w-100"}>
                     {user.loggedIn ? (
                         <div className="d-flex justify-content-start">
-                            <Button variant="primary" onClick={() => navigate('/reviews/form', { state: {from: '/reviews', ...location.state} })}>
+                            <Button variant="primary" onClick={() => navigate('/reviews/form', { state: {from: '/reviews', edit: 0, ...location.state} })}>
                                 <i className="fas fa-pen"></i> Write a review
                             </Button>
                         </div>

@@ -42,7 +42,7 @@ const Item = (props) => {
                 />
                 <Card.Text></Card.Text>
                 {user.loggedIn ? (
-                    <NavLink className="remove-underline" to="/reviews/form" state={{ edit: 0, ...props }} >
+                    <NavLink className="remove-underline" to="/reviews/form" state={{ from: "/reviews", edit: 0, ...props }} >
                         <Button variant="primary"><i className="fas fa-pen"></i> Write a review</Button>
                     </NavLink>
                 ) : ''}

@@ -13,6 +13,11 @@
   label {
     font-size: 28px;
     font-weight: bold;
+
+    .count {
+      font-size: 26px;
+      color: gray;
+    }
   }
 
   img {
@@ -75,7 +80,7 @@
   margin-right: 15px;
 }
 
-@media only screen and (max-width: 1200px) {
+@media only screen and (max-width: 1500px) {
   .breadcrumb-bar {
     position: relative;
   }

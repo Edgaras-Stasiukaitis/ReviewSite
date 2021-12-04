@@ -59,7 +59,7 @@ const CategoryList = () => {
                         />
                     </div>
                 ) : ''}
-                <Row xs={1} md={3} className="mt-3 g-4">
+                <Row xs={1} md={2} xl={3} className="mt-3 g-4">
                     {categories && categories.map((cat, _) => (
                         <div key={cat.id}>
                             <Col>

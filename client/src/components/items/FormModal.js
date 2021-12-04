@@ -53,7 +53,7 @@ const FormModal = (props) => {
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          {props.edit === 0 ? "Add new item" : "Edit item"}
+          {props.edit === 0 ? "Add a new item" : "Edit item"}
         </Modal.Title>
       </Modal.Header>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -88,7 +88,7 @@ const FormModal = (props) => {
                   <span>{errors?.description?.message}</span>
                 </div>
                 <div className="form-group">
-                  <label htmlFor="imageUrl">Image url</label>
+                  <label htmlFor="imageUrl">Image URL</label>
                   <input
                     className={errors?.imageUrl?.message ? "invalid-field" : ""}
                     type="text"

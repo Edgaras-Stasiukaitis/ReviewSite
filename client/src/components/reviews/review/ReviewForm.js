@@ -28,7 +28,7 @@ const ReviewForm = () => {
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(reviewSchema)
     });
-
+    
     if(location.state == null) return <Navigate to='/'/>;
 
     const onSubmit = async (data) => {
@@ -46,7 +46,7 @@ const ReviewForm = () => {
         const result = location.state.edit ? await updateReview(payload) : await addReview(payload);
         if (result.ok) {
             toast.success("Review published!");
-            navigate(location.state?.from != null ? location.state.from : "/categories", { state: location.state });
+            navigate(location.state?.from != null ? location.state.from : "/categories", { state: { category: location.state.category, item: location.state.item } });
             return null;
         }
         else toast.error("Invalid data provided.");
@@ -59,7 +59,7 @@ const ReviewForm = () => {
                     <Breadcrumb.Item onClick={() => navigate('/')}><i className="fas fa-home"></i></Breadcrumb.Item>
                     <Breadcrumb.Item onClick={() => navigate('/categories')}>Categories</Breadcrumb.Item>
                     <Breadcrumb.Item onClick={() => navigate('/items', { state: location.state?.category })}>{location.state?.category?.name}</Breadcrumb.Item>
-                    <Breadcrumb.Item onClick={() => navigate('/reviews', { state: location.state })}>{location?.state?.item?.name}</Breadcrumb.Item>
+                    <Breadcrumb.Item onClick={() => navigate('/reviews', { state: { category: location.state?.category, item: location.state?.item } })}>{location?.state?.item?.name}</Breadcrumb.Item>
                     <Breadcrumb.Item active>Review</Breadcrumb.Item>
                 </Breadcrumb>
                 <img src={item?.imageURL ? item.imageURL : defaultItemImage} alt="" />
@@ -104,7 +104,7 @@ const ReviewForm = () => {
                         <span className="error">{errors?.description?.message}</span>
                     </div>
                     <div className="inline-buttons">
-                        <button onClick={() => navigate(location.state?.from != null ? location.state.from : "/reviews" , { state: location.state })} type="button" className="btn btn-secondary">Back to reviews</button>
+                        <button onClick={() => navigate(location.state?.from != null ? location.state.from : "/reviews" , { state: { category: location.state.category, item: location.state.item } })} type="button" className="btn btn-secondary">Back to reviews</button>
                         <button onClick={() => setSubmitted(true)} type="submit" className="btn btn-success">Submit</button>
                     </div>
                 </div>

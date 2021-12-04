@@ -13,8 +13,8 @@ export const logoutAction = () => (dispatch) => {
 };
 
 export const refreshTokenAction = (user) => async (dispatch) => {
-  if (!user.loggedIn) return;
-  if (Date.now() <= user.data.exp * 1000) return;
+  if (!user.loggedIn) return null;
+  if (Date.now() <= user.data.exp * 1000) return null;
   const payload = {
     token: user.token,
     refreshToken: user.refreshToken
@@ -25,9 +25,8 @@ export const refreshTokenAction = (user) => async (dispatch) => {
     localStorage.setItem("user", JSON.stringify(newToken));
     dispatch({ type: userConstants.REFRESH, payload: newToken });
     return newToken;
-  } else {
-    dispatch({ type: userConstants.LOGOUT })
-    window.location.reload();
-  };
+  }
+  dispatch({ type: userConstants.LOGOUT })
+  window.location.reload();
   return null;
 }

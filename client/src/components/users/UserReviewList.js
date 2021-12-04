@@ -33,12 +33,12 @@ const UserReviewList = () => {
                     <Breadcrumb.Item onClick={() => navigate('/')}><i className="fas fa-home"></i></Breadcrumb.Item>
                     <Breadcrumb.Item active>Reviews</Breadcrumb.Item>
                 </Breadcrumb>
-                <label><i className="fas fa-star"></i> My reviews</label>
+                <label><i className="fas fa-star"></i> My reviews <label className="count">({reviews?.length})</label></label>
             </div>
             {reviews && reviews.length === 0 ? (
                 <Container className={width >= 850 ? "mt-5 w-50" : "mt-4 w-100"}>
                     <Alert variant="info">
-                        You haven't written a single review yet! Find the item to review by <Button variant="primary" size="sm" onClick={() => navigate('/categories')}>
+                        You haven't written a single review yet! Find an item to review by <Button variant="primary" size="sm" onClick={() => navigate('/categories')}>
                             <i className="fas fa-layer-group"></i> exploring</Button> the categories!
                     </Alert>
                 </Container>
