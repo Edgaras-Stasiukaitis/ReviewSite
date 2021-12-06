@@ -31,3 +31,9 @@ export const averageRating = (reviews) => {
     if (Object.entries(reviews).length === 0) return 0;
     return (reviews.map((r, _) => r.review.rating).reduce((sum, a) => sum + a, 0)) / reviews.length;
 }
+
+export const shrinkText = (text, charCount) => {
+    if(text && text == null) return "";
+    if(text.length > charCount) return `${text.substring(0, charCount)}...`;
+    return text;
+}

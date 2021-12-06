@@ -178,8 +178,8 @@ namespace ReviewAPI.Controllers
                 if (rolesForUser.Any())
                     foreach (var item in rolesForUser.ToList())
                         await _userManager.RemoveFromRoleAsync(user, item);
-                _context.Reactions.RemoveRange(_context.Reactions.Where(r => r.User.Id == id));
-                _context.Reviews.RemoveRange(_context.Reviews.Where(r => r.User.Id == id));
+                _context.Reactions.RemoveRange(user.Reactions);
+                _context.Reviews.RemoveRange(user.Reviews);
                 _context.RefreshTokens.RemoveRange(_context.RefreshTokens.Where(t => t.User.Id == id));
                 await _userManager.DeleteAsync(user);
                 await transaction.CommitAsync();

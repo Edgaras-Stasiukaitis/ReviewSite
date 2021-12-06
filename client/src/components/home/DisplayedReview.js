@@ -1,7 +1,7 @@
 import React from "react";
 import { Card } from "react-bootstrap";
 import StarRatings from "react-star-ratings";
-import { timeSince } from "../../utilities/calculators";
+import { shrinkText, timeSince } from "../../utilities/calculators";
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import "../reviews/review/review.css";
@@ -9,6 +9,7 @@ import "../reviews/review/review.css";
 const DisplayedReview = (props) => {
     const [upvoteCount, setUpvoteCount] = useState(0);
     const [downvoteCount, setDownvoteCount] = useState(0);
+    const textCharCount = 200;
 
     useEffect(() => {
         const reactionCounts = props.reactions && props.reactions.reduce((cnt, cur) => { cnt[cur.reactionState] = cnt[cur.reactionState] + 1 || 1; return cnt }, {});
@@ -39,7 +40,7 @@ const DisplayedReview = (props) => {
                 </div>
                 <Card.Text></Card.Text>
                 <Card.Title className="card-item-italic">{props.review.title}</Card.Title>
-                <Card.Text className="card-item-italic">{props.review.description}</Card.Text>
+                <Card.Text className="card-item-italic">{shrinkText(props.review.description, textCharCount)}</Card.Text>
                 <hr />
                 <i className="fas fa-thumbs-up thumbs"></i>
                 <span className="vote-count"> {upvoteCount} </span>

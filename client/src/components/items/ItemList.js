@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Container, Row, Col, Button, Breadcrumb } from 'react-bootstrap';
+import { Container, Row, Col, Button, Breadcrumb, Alert } from 'react-bootstrap';
 import { getItems } from '../../api/item';
 import Item from './item/Item';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
@@ -47,6 +47,12 @@ const ItemList = () => {
                             category={location.state}
                         />
                     </div>
+                ) : ''}
+                {items && items.length === 0 ? (
+                    <Alert className="mt-5" variant="info">
+                        <Alert.Heading>No items to be reviewed</Alert.Heading>
+                        <p>Selected category does not contain any items to be reviewed yet! Please come back later.</p>
+                    </Alert>
                 ) : ''}
                 <Row xs={1} md={2} lg={3} xxl={4} className="mt-3 g-1">
                     {items && items.map((item, _) => (
